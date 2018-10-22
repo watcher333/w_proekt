@@ -1,0 +1,10 @@
+<?php
+system("netstat -ntpl",$system);
+set_time_limit(330);
+for($i=0;$i<count($system);$i++)
+{
+ printf("%s\n<br>",$system[$i]);
+ 
+}
+?>
+

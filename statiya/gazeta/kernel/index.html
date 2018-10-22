@@ -1,0 +1,322 @@
+<?php
+$link = mysql_connect("localhost", "root", "") or die("no connect");
+mysql_select_db("counter", $link) or die("no vibor");
+$day=date('d');
+$month=date('m');
+$year=date('y');
+$count2=0;
+$date="20".$year."-".$month."-".$day;
+$ip=getenv("REMOTE_ADDR")." ".getenv("HTTP_X_FORWARDED_FOR");
+$query="select * from counter where ip='$ip' && other='kernel'";
+$result=mysql_query($query,$link);
+while ($count=mysql_fetch_row($result))
+  {
+    if($ip==$count[2] && $count[4]=="kernel")
+    {
+    $count1=$count[3]+1;
+    $query="update counter set input='$count1',date='$date' where ip='$ip' && other='kernel'";
+    $result=mysql_query($query,$link);
+    $count2++;
+    }
+
+  }
+
+
+
+if($count2==0)
+{
+ $query="INSERT INTO counter (date,ip,input,other) VALUES ('$date','$ip','1','kernel')";
+ $result = mysql_query($query,$link);
+ mysql_close($link);
+}
+?>
+
+
+<HTML>
+<TITLE> kernel </TITLE>
+<link rel="stylesheet" type="text/css" href="style.css">
+<style type="text/css">
+P {
+ text-align: justify; /* Выравнивание по ширине */
+}
+</style>
+<BODY BGCOLOR="#DDE1C2" TEXT="#002040">
+<h2 align=center>Обновляем ядро на Centos5.1 </h2>
+<br>
+
+<br>
+<br>
+<br>
+
+<p><b>Скачиваем исходники : </b></p>
+<table border=1>
+<tr><td><a href=ftp://ftp.kernel.org/usr/pub/linux/kernel/v2.6/linux-2.6.24.4.tar.bz2><FONT SIZE=2 COLOR=green><b>linux-2.6.24.4.tar.bz2 - само ядро</font></b></td></tr>
+<tr><td><a href=ftp://ftp.kernel.org/usr/pub/linux/kernel/v2.6/patch-2.6.24.4.bz2><FONT SIZE=2 COLOR=green><b>patch-2.6.24.4.bz2 - патч</font></b></td></tr>   
+</table>
+<br>
+<br>
+<p><b>Нынешнее ядро </b></p>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost kernels]# uname -r
+2.6.18-53.el5
+</pre></div></p>
+
+<br>
+<p> <b>Распоковываем архивы и раскидываем их по каталогам  </b></p>
+<p><ul>
+<li> linux-2.6.24.4.tar.bz2 ---> /usr/src/kernels/</li>
+<li> patch-2.6.24.4.bz2 -------> /usr/src/kernels/linux-2.6.24.4/</li>
+</ul>
+<div class="codeheader">/root</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost ~]# tar -xjf linux-2.6.24.4.tar.bz2
+[root@localhost ~]# bzip2 -d patch-2.6.24.4.bz2
+[root@localhost ~]# cp -r linux-2.6.24.4 /usr/src/kernels/
+[root@localhost ~]# cp patch-2.6.24.4 /usr/src/kernels/linux-2.6.24.4/
+[root@localhost ~]# cd /usr/src/kernels/linux-2.6.24.4/
+</pre></div></p>
+
+<br>
+<p><font color=red>1</font> <b>Пробуем наложить patch-2.6.24.4 на наше ядро(используя команду patch)</b></p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.24.4/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost linux-2.6.24.4]# patch -p1 -i patch-2.6.24.4
+..................................................................
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+patching file kernel/compat.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+patching file kernel/futex.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+patching file kernel/futex_compat.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+patching file kernel/hrtimer.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+patching file kernel/irq/chip.c
+Hunk #1 succeeded at 257 (offset 11 lines).
+<font color=red>Hunk #2 FAILED at 278.
+Hunk #3 succeeded at 650 with fuzz 2 (offset 43 lines).
+1 out of 3 hunks FAILED -- saving rejects to file kernel/irq/chip.c.rej</font>
+patching file kernel/posix-timers.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+patching file kernel/relay.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+patching file kernel/sched.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+patching file kernel/sched_fair.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+patching file kernel/sysctl.c
+...................................................................
+</pre></div>
+В процессе наложения произошла ошибка, скорее этот патч не подходит для моей OS или этого ядра.
+Начинаю все заново(удаляю каталог linux-2.6.24.4 и копирую каталог обратно )</p>
+
+
+<br>
+<p><font color=red>2</font> <b>Чистка - удалеяем все временные файлы касающие прошлой сборки(<font color=blue>make mrproper</font>)</b></p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.24.4/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost linux-2.6.24.4]# make mrproper</pre></div></p>
+<br>
+<p> <font color=red>3</font><b> Мы должны опред. каким путем пойдем: </b></p>
+<p><ul>
+<li><font color=blue>make config</font> - будет задавать кучу вопрос(не удобный вариант)</li>
+<li><font color=blue>make menuconfig</font> - текстовое меню(можно выбрать вариант все поумолчание)</li>
+<li><font color=blue>make oldconfig</font> - он задаст вопросы только о новых взможностях ядра(все остальное возьмет с вашего ядра)</li>
+</ul>
+<br>
+Я пошел третьим путем, скопировал фаил<font color=blue> .config </font>со своего ядра
+<div class="codeheader">/usr/src/kernels/linux-2.6.24.4/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost linux-2.6.24.4]# cp /usr/src/kernels/2.6.18-53.el5-i686/.config /usr/src/kernels/linux-2.6.24.4/
+[root@localhost linux-2.6.24.4]# make oldconfig
+  HOSTCC  scripts/basic/fixdep
+  HOSTCC  scripts/basic/docproc
+  HOSTCC  scripts/kconfig/conf.o
+  HOSTCC  scripts/kconfig/kxgettext.o
+  SHIPPED scripts/kconfig/zconf.tab.c
+  SHIPPED scripts/kconfig/lex.zconf.c
+  SHIPPED scripts/kconfig/zconf.hash.c
+  HOSTCC  scripts/kconfig/zconf.tab.o
+  HOSTLD  scripts/kconfig/conf
+scripts/kconfig/conf -o arch/x86/Kconfig
+#
+# using defaults found in /boot/config-2.6.18-53.el5
+#
+/boot/config-2.6.18-53.el5:75:warning: trying to assign nonexistent symbol MODULE_SIG
+/boot/config-2.6.18-53.el5:76:warning: trying to assign nonexistent symbol MODULE_SIG_FORCE
+/boot/config-2.6.18-53.el5:83:warning: trying to assign nonexistent symbol PTRACE
+/boot/config-2.6.18-53.el5:84:warning: trying to assign nonexistent symbol UTRACE
+/boot/config-2.6.18-53.el5:111:warning: trying to assign nonexistent symbol X86_XEN
+/boot/config-2.6.18-53.el5:154:warning: trying to assign nonexistent symbol X86_CMPXCHG64
+/boot/config-2.6.18-53.el5:161:warning: trying to assign nonexistent symbol TICK_DIVIDER
+/boot/config-2.6.18-53.el5:210:warning: trying to assign nonexistent symbol REGPARM
+......................................................................................
+* Linux Kernel Configuration
+*
+*
+* General setup
+*
+Prompt for development and/or incomplete code/drivers (EXPERIMENTAL) [Y/n/?] y
+Local version - append to kernel release (LOCALVERSION) []
+Automatically append version information to the version string (LOCALVERSION_AUTO) [N/y/?] n
+Support for paging of anonymous memory (swap) (SWAP) [Y/n/?] y
+System V IPC (SYSVIPC) [Y/n/?] y
+POSIX Message Queues (POSIX_MQUEUE) [Y/n/?] y
+BSD Process Accounting (BSD_PROCESS_ACCT) [Y/n/?] y
+  BSD Process Accounting version 3 file format (BSD_PROCESS_ACCT_V3) [N/y/?] n
+Export task/process statistics through netlink (EXPERIMENTAL) (TASKSTATS) [Y/n/?] y
+  Enable per-task delay accounting (EXPERIMENTAL) (TASK_DELAY_ACCT) [Y/n/?] y
+  Enable extended accounting over taskstats (EXPERIMENTAL) (TASK_XACCT) [N/y/?] (NEW)
+.........................................................................................
+* Library routines
+*
+CRC-CCITT functions (CRC_CCITT) [M/y/?] m
+CRC16 functions (CRC16) [M/n/y/?] m
+CRC ITU-T V.41 functions (CRC_ITU_T) [M/y/?] (NEW)
+CRC32 functions (CRC32) [Y/?] y
+CRC7 functions (CRC7) [N/m/y/?] (NEW)
+CRC32c (Castagnoli, et al) Cyclic Redundancy-Check (LIBCRC32C) [Y/?] y
+#
+# configuration written to .config
+#
+</pre></div>
+<br>
+В результате чего в каталоге ядра был создан новый фаил <font color=blue>.config</font> с нашей конфигугацией
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost linux-2.6.24.4]# ls -a | grep .config
+.config
+</div></pre></p>
+
+<br>
+<p><font color=red>4</font> <b>Соберем и установим модули(<font color=blue>make</font>)</b></p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.24.4/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost linux-2.6.24.4]# make
+scripts/kconfig/conf -s arch/x86/Kconfig
+  CHK     include/linux/version.h
+  UPD     include/linux/version.h
+  CHK     include/linux/utsrelease.h
+  UPD     include/linux/utsrelease.h
+  SYMLINK include/asm -> include/asm-x86
+  CC      arch/x86/kernel/asm-offsets.s
+  GEN     include/asm-x86/asm-offsets.h
+  CALL    scripts/checksyscalls.sh
+  HOSTCC  scripts/genksyms/genksyms.o
+  SHIPPED scripts/genksyms/lex.c
+  SHIPPED scripts/genksyms/parse.h
+  SHIPPED scripts/genksyms/keywords.c
+  HOSTCC  scripts/genksyms/lex.o
+  SHIPPED scripts/genksyms/parse.c
+  HOSTCC  scripts/genksyms/parse.o
+  HOSTLD  scripts/genksyms/genksyms
+  CC      scripts/mod/empty.o
+  HOSTCC  scripts/mod/mk_elfconfig
+  MKELF   scripts/mod/elfconfig.h
+  HOSTCC  scripts/mod/file2alias.o
+  HOSTCC  scripts/mod/modpost.o
+  HOSTCC  scripts/mod/sumversion.o
+  HOSTLD  scripts/mod/modpost
+........................................................
+ CC [M]  fs/gfs2/sys.o
+  CC [M]  fs/gfs2/trans.o
+  CC [M]  fs/gfs2/util.o
+  LD [M]  fs/gfs2/gfs2.o
+  LD      fs/gfs2/locking/dlm/built-in.o
+  CC [M]  fs/gfs2/locking/dlm/lock.o
+  CC [M]  fs/gfs2/locking/dlm/main.o
+  CC [M]  fs/gfs2/locking/dlm/mount.o
+  CC [M]  fs/gfs2/locking/dlm/sysfs.o
+  CC [M]  fs/gfs2/locking/dlm/thread.o
+  CC [M]  fs/gfs2/locking/dlm/plock.o
+  LD [M]  fs/gfs2/locking/dlm/lock_dlm.o
+  LD      fs/gfs2/locking/nolock/built-in.o
+  CC [M]  fs/gfs2/locking/nolock/main.o
+  LD [M]  fs/gfs2/locking/nolock/lock_nolock.o
+  LD      fs/hfs/built-in.o
+  CC [M]  fs/hfs/bitmap.o
+  CC [M]  fs/hfs/bfind.o
+  CC [M]  fs/hfs/bnode.o
+  CC [M]  fs/hfs/brec.o
+  CC [M]  fs/hfs/btree.o
+  CC [M]  fs/hfs/catalog.o
+........................................................
+</pre></div></p>
+
+<br>
+<p><font color=red>5</font> <b>Устанвливаем ядро(<font color=blue>make modules_install install</font>)</b></p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.24.4/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost linux-2.6.24.4]# make modules_install install
+  INSTALL arch/x86/crypto/aes-i586.ko
+  INSTALL arch/x86/kernel/cpu/cpufreq/acpi-cpufreq.ko
+  INSTALL arch/x86/kernel/cpu/cpufreq/p4-clockmod.ko
+  INSTALL arch/x86/kernel/cpuid.ko
+  INSTALL arch/x86/kernel/microcode.ko
+  INSTALL arch/x86/kernel/msr.ko
+  INSTALL arch/x86/oprofile/oprofile.ko
+  INSTALL crypto/aes_generic.ko
+  INSTALL crypto/anubis.ko
+  INSTALL crypto/arc4.ko
+  INSTALL crypto/async_tx/async_memcpy.ko
+  INSTALL crypto/async_tx/async_tx.ko
+  INSTALL crypto/async_tx/async_xor.ko
+  INSTALL crypto/blkcipher.ko
+  INSTALL crypto/blowfish.ko
+  INSTALL crypto/cast5.ko
+  INSTALL crypto/cast6.ko
+  INSTALL crypto/cbc.ko
+  INSTALL crypto/crypto_null.ko
+  INSTALL crypto/deflate.ko
+  INSTALL crypto/des_generic.ko
+  INSTALL crypto/ecb.ko
+  INSTALL crypto/khazad.ko
+  INSTALL crypto/md4.ko
+..................................................................
+ DEPMOD  2.6.24.4
+sh /usr/src/kernels/linux-2.6.24.4/arch/x86/boot/install.sh 2.6.24.4 arch/x86/boot/bzImage System.map "/boot"
+</pre></div></p>
+
+<br>
+<p><font color=red>6</font><b> Проверяем создание файлов и настраиваем загрузчик(grub)</b></p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.24.4/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost boot]# ls /boot/ | grep 2.6.24.4
+initrd-2.6.24.4.img
+System.map-2.6.24.4
+vmlinuz-2.6.24.4
+[root@localhost boot]# ls /lib/modules/ | grep 2.6.24.4
+2.6.24.4
+</pre></div>
+<br>
+В загрузчике должны быть примерно такие строчки (они создаются автоматически)
+<div class="codeheader">/boot/grub/grub.conf</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+title CentOS (2.6.24.4)
+        root (hd0,0)
+        kernel /vmlinuz-2.6.24.4 ro root=/dev/VolGroup00/LogVol00
+        initrd /initrd-2.6.24.4.img
+</pre></div></p>
+
+<br>
+<p><font color=red>7</font> Перезагружаем комп и проверяем загрузку ядра <b></b></p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.24.4/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost sysconfig]# uname -r
+2.6.24.4
+</pre></div></p>
+
+<br>
+<p> Поскрипту: <b></b>
+<br> Вообще советую не заниматься этой ерундой, а брать ядра уже готовые в rpm или
+в исходниках src.rpm, из репозитория своей OS
+</p>
+
+<br>
+
+
+
+
+</BODY>
+
+</HTML>
+

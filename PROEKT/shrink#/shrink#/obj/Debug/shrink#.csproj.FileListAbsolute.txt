@@ -1,0 +1,7 @@
+C:\proekt\shrink#\shrink#\bin\Debug\shrink#.exe.config
+C:\proekt\shrink#\shrink#\bin\Debug\shrink#.exe
+C:\proekt\shrink#\shrink#\bin\Debug\shrink#.pdb
+C:\proekt\shrink#\shrink#\obj\Debug\shrink#.csprojResolveAssemblyReference.cache
+C:\proekt\shrink#\shrink#\obj\Debug\shrink#.exe
+C:\proekt\shrink#\shrink#\obj\Debug\shrink#.pdb
+C:\proekt\shrink#\shrink#\bin\Debug\WinSCPnet.dll

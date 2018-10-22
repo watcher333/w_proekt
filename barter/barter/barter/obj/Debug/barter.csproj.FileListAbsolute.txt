@@ -1,0 +1,11 @@
+D:\proekt\barter\barter\barter\bin\Debug\barter.exe
+D:\proekt\barter\barter\barter\bin\Debug\barter.pdb
+D:\proekt\barter\barter\barter\obj\Debug\ResolveAssemblyReference.cache
+D:\proekt\barter\barter\barter\obj\Debug\barter.Form1.resources
+D:\proekt\barter\barter\barter\obj\Debug\barter.Properties.Resources.resources
+D:\proekt\barter\barter\barter\obj\Debug\barter.csproj.GenerateResource.Cache
+D:\proekt\barter\barter\barter\obj\Debug\barter.exe
+D:\proekt\barter\barter\barter\obj\Debug\barter.pdb
+D:\proekt\barter\barter\barter\obj\Debug\barter.Form2.resources
+D:\proekt\barter\barter\barter\bin\Debug\Microsoft.VisualBasic.dll
+D:\proekt\barter\barter\barter\obj\Debug\barter.Form3.resources

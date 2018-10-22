@@ -1,0 +1,567 @@
+<?php
+$link = mysql_connect("localhost", "root", "") or die("no connect");
+mysql_select_db("counter", $link) or die("no vibor");
+$day=date('d');
+$month=date('m');
+$year=date('y');
+$count2=0;
+$date="20".$year."-".$month."-".$day;
+$ip=getenv("REMOTE_ADDR")." ".getenv("HTTP_X_FORWARDED_FOR");
+$query="select * from counter where ip='$ip' && other='trafik'";
+$result=mysql_query($query,$link);
+while ($count=mysql_fetch_row($result))
+  {
+    if($ip==$count[2] && $count[4]=="trafik")
+    {
+    $count1=$count[3]+1;
+    $query="update counter set input='$count1',date='$date' where ip='$ip' && other='trafik'";
+    $result=mysql_query($query,$link);
+    $count2++;
+    }
+
+  }
+
+
+
+if($count2==0)
+{
+ $query="INSERT INTO counter (date,ip,input,other) VALUES ('$date','$ip','1','trafik')";
+ $result = mysql_query($query,$link);
+ mysql_close($link);
+}
+?>
+
+
+<HTML>
+<TITLE> ipcad </TITLE>
+<link rel="stylesheet" type="text/css" href="style.css">
+<style type="text/css">
+P {
+ text-align: justify; /* Выравнивание по ширине */
+}
+</style>
+<BODY BGCOLOR="#DDE1C2" TEXT="#002040">
+<h2 align=center>Система учета трафика связка ipcad&mysql&httpd&php</h2>
+<br>
+
+<p><b>Исходный данные: </b></p>
+<table border=1>
+<tr><td><FONT SIZE=3 COLOR=green><b>(84.56.32.7)eth1</front></b></td>
+     <td><FONT SIZE=3 COLOR=green><b>внешний интерфейс</front></b></td></tr>
+<tr><td><FONT SIZE=3 COLOR=green><b>(192.168.50.3)eth0</front></b></td>
+     <td><FONT SIZE=3 COLOR=green><b>внутренний интерфейс</front></b></td></tr>     
+</table>
+<p> <b>Задача: </b></p>
+<p>Надо посчитать входящий и исходящий по eth1 и  
+входящий трафик по eth0( порт 3138, 110 и nat)+прикрутить web морду</p>
+<br><p><b><FONT SIZE=3 COLOR=blue>Настраиваем ipcad: </font></b><br>
+<div class="codeheader">ipcad.conf</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+capture-ports enable;
+buffers = 128k;
+interface eth1;
+interface eth0;
+aggregate 192.168.50.0/24 strip32;
+rsh enable at 127.0.0.1;
+rsh root@127.0.0.1 admin;
+rsh root@127.0.0.1 backup;
+rsh root@127.0.0.1;
+rsh 127.0.0.1 view-only;
+rsh ttl = 3;
+rsh timeout = 30;
+dumpfile = /var/log/ipcad/ipcad.dump;
+pidfile = /var/run/ipcad.pid;
+memory_limit = 80m;</pre></div></p>
+
+<br><h3><FONT SIZE=3 COLOR=blue><b>Настраиваем mysql </font></b></h3>
+<p>Создадим базу допуститм spacedust
+<div class="codeheader">Создаем базу где будет храниться вся инфа</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@spacedust ~]# mysql -u root 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 1000 to server version: 4.1.20
+<br>
+Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+<br>
+mysql> create database spacedust;
+Query OK, 1 row affected (0.03 sec)
+<br>
+mysql> show databases;
++-----------+
+| Database  |
++-----------+
+| mysql     |
+| spacedust |
+| test      |
++-----------+
+3 rows in set (0.00 sec)
+<br>
+mysql></pre></div></p>
+<p> Теперь создадим таблицы для внешнего и внутреннего интерфейса
+<div class="codeheader">Таблицы eth0,eth1</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@spacedust ~]# mysql -u root
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 1001 to server version: 4.1.20
+<br>
+Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+<br>
+mysql> use spacedust;
+Database changed
+mysql> create table eth1( id int(11) NOT NULL AUTO_increment,date DATE,ip VARCHAR(90) not null,output double(90,4) not null,input double(90,4) not null, primary key(id));
+Query OK, 0 rows affected (0.06 sec)
+<br>
+mysql> create table eth0( id int(11) NOT NULL AUTO_increment,date DATE,ip VARCHAR(90) not null,sendmail double(90,2) not null,squid double(90,2) not null,nat double(90,2) not null, primary key(id));
+Query OK, 0 rows affected (0.02 sec)
+<br>
+mysql> show tables;
++---------------------+
+| Tables_in_spacedust |
++---------------------+
+| eth0                |
+| eth1                
++---------------------+
+2 rows in set (0.02 sec)
+<br>
+mysql>
+</pre></div></p>
+<br><h3><FONT SIZE=3 COLOR=blue><b>Прикручиваем web - морду </font></b></h3>
+<p>Создаем в каталоге /var/www/html папку traf_inza в нее еще папку index</p>
+
+<p> Считаем входящий и исходящий по eth1 при этом обрезаем под сеть провайдера
+    в силу того что она бесплатная, у меня она такая(84.56.).Создаем скрипт 
+    traf_eth1 со следующим содержанием:<br>
+<div class="codeheader">/var/www/html/traf_inza/traf_eth1;  eth1 - фаил с моими внешними ip</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+for i in $(cat /var/www/html/traf_inza/eth1); do
+      echo $i
+/usr/bin/rsh localhost show ip accounting | grep -w $i |awk '{{if($2!~/84.56./ && $2!~/192.168./ &&  $8=="eth1"){s+=$4}} {if($1!~/84.56./ && $1!~/192.168./ &&  $8=="eth1"){s1+=$4}}}  END {printf "%9.4f\n %9.4f\n ",((s/1024)/1024),((s1/1024)/1024)}'
+done
+</pre></div><p>
+<p> Считаем входящий по eth0 (порты 110,3128,nat) при этом обрезаем весь
+    весь не нужный сетевой трафик, а так же трафик провайдера. Создаем скрипт traf_eth0 со следующим содержанием:<br>
+<div class="codeheader">/var/www/html/traf_inza/traf_eth0;  eth0 - фаил с моими локальными ip</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+for i in $(cat /var/www/html/traf_inza/eth0); do 
+      echo $i
+/usr/bin/rsh localhost show ip accounting | grep -w $i |awk '{{if($1=="192.168.50.3" && $8=="eth0" && $5=="110"){s+=$4}} {if($1=="192.168.50.3" && $8=="eth0" && $5=="3128"){s1+=$4}}  {if($1!~/192.168./ && $8=="eth0" && $2!~/(192.168.50.[3|255])$)/ && $1!~/84.56./){s2+=$4}}}  END {printf "%9.4f\n %9.4f\n %9.4f\n ",((s/1024)/1024),((s1/1024)/1024),((s2/1024)/1024)}'
+done
+</pre></div></p>
+<p>Поесню немного что значят эти порты <br>
+<ul>
+<li><b>110</b> - трафик почтовый(это имеет смысл делать, если есть свой почтовый сервер),
+            <br> но тут есть своя погрешность будет считать и локальный трафик почты<li>
+<li><b>nat</b> - весь транкзитный трафик который идет через мой router (трафик FORWARD) </li>
+<li><b>3128</b> - у меня на этом порту крутиться прокси сервер</li>
+
+</ul> </p>
+<p><font color=green>index_eth0.php - просмотр в реальном времени интерфейса eth0</font>
+<div class="codeheader">/var/www/html/traf_inza/index/index_eth0.php</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+&lt;?php
+exec("/var/www/html/traf_inza/traf_eth0",$traf_inza);
+set_time_limit(330);
+$j=0;
+$sum1=0;
+$sum2=0;
+$sum3=0;
+<br>
+echo "&lt;table border=1>\n";
+echo "&lt;tr>&lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>IP&lt;/front>&lt;/b>&lt;/td><br>
+      &lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>SENDMAIL[MB]&lt;/front>&lt;/b>&lt;/td><br>
+      &lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>SQUID[MB]&lt;/front>&lt;/b>&lt;/td><br>
+      &lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>NAT[MB]&lt;/front>&lt;/b>&lt;/td>&lt;/tr>\n";<br>
+<br>
+for($i=0;$i<(count($traf_inza)/4)-1;$i++)
+{
+ if($traf_inza[$i+$j+1]>9)
+ {$color1=red;} else {$color1=black;}
+ if($traf_inza[$i+$j+2]>9)
+ {$color2=red;} else {$color2=black;}
+ if($traf_inza[$i+$j+3]>9)
+ {$color3=red;} else {$color3=black;}
+ $sum1+=$traf_inza[$i+$j+1];
+ $sum2+=$traf_inza[$i+$j+2];
+ $sum3+=$traf_inza[$i+$j+3];
+ printf("&lt;tr>&lt;td>&lt;FONT SIZE=3 COLOR=blue>&lt;b>%s&lt;/b>&lt;/front>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=$color1>&lt;b>%9.2f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=$color2>&lt;b>%9.2f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=$color3>&lt;b>%9.2f&lt;/b>&lt;/font>&lt;/td>&lt;/tr>\n",
+         $traf_inza[$i+$j],$traf_inza[$i+$j+1],$traf_inza[$i+$j+2],$traf_inza[$i+$j+3]);
+         $j+=3;
+<br>
+}
+ printf("&lt;tr>&lt;td>&lt;FONT SIZE=3 COLOR=blue>&lt;b>SPACEDUST.RU&lt;/b>&lt;/front>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=red>&lt;b>%9.2f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=red>&lt;b>%9.2f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=red>&lt;b>%9.2f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/tr>\n",$sum1,$sum2,$sum3);
+echo "&lt;/table>\n";
+?>
+</pre></div></p>
+
+<p><font color=green>index_eth1.php - просмотр в реальном времени интерфейса eth1</font>
+<div class="codeheader">/var/www/html/traf_inza/index/index_eth1.php</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+&lt;?php
+exec("/var/www/html/traf_inza/traf_eth1",$traf_inza);
+set_time_limit(330);
+$j=0;
+$sum1=0;
+$sum2=0;
+<br>
+echo "&lt;table border=1>\n";
+echo "&lt;tr>&lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>IP&lt;/front>&lt;/b>&lt;/td>
+      &lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>OUTPUT[MB]&lt;/front>&lt;/b>&lt;/td>
+      &lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>INPUT[MB]&lt;/front>&lt;/b>&lt;/td>&lt;/tr>\n";
+<br>
+for($i=0;$i<(count($traf_inza)/3)-1;$i++)
+{
+ if($traf_inza[$i+$j+1]>280)
+ {$color1=red;} else {$color1=black;}
+ if($traf_inza[$i+$j+2]>280)
+ {$color2=red;} else {$color2=black;}
+ $sum1+=$traf_inza[$i+$j+1];
+ $sum2+=$traf_inza[$i+$j+2];
+ printf("&lt;tr>&lt;td>&lt;FONT SIZE=3 COLOR=blue>&lt;b>%s&lt;/b>&lt;/front>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=$color1>&lt;b>%9.4f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=$color2>&lt;b>%9.4f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/tr>\n",$traf_inza[$i+$j],$traf_inza[$i+$j+1],$traf_inza[$i+$j+2]);
+         $j+=2;
+<br>
+}
+ printf("&lt;tr>&lt;td>&lt;FONT SIZE=3 COLOR=blue>&lt;b>SPACEDUST.RU&lt;/b>&lt;/front>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=red>&lt;b>%9.4f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/td><td>&lt;FONT SIZE=3 COLOR=red>&lt;b>%9.4f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/tr>\n",$sum1,$sum2);
+echo "&lt;/table>\n";
+?>
+</pre></div></p>
+
+<p><font color=green>index_mysql.php - это скрипт который будет запускаться каждый день и сбрасывать статистику в базу spacedust(mysql) и обнуляет ее, время задает в cron, рекомендую поставить время 23:50</font>
+<div class="codeheader">/var/www/html/traf_inza/index/index_mysql.php</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+&lt;?php
+exec("/var/www/html/traf_inza/traf_eth0",$traf_inza);
+exec("/var/www/html/traf_inza/traf_eth1",$traf_inza1);
+set_time_limit(330);
+$j=0;
+$sum1=0;
+$sum2=0;
+$sum3=0;
+<br>
+$day=date('d');
+$month=date('m');
+$year=date('y'); 
+$date="20".$year."-".$month."-".$day;
+<br>
+$link = mysql_connect("localhost", "root", "") or die("no connect"); 
+mysql_select_db("spacedust", $link) or die("no vibor");
+<br>
+for($i=0;$i<(count($traf_inza)/4)-1;$i++)
+{
+$traf_ip=trim($traf_inza[$i+$j]);
+$traf_mail=trim($traf_inza[$i+$j+1]);
+$traf_squid=trim($traf_inza[$i+$j+2]);
+$traf_nat=trim($traf_inza[$i+$j+3]);
+$sum1+=$traf_inza[$i+$j+1];
+$sum2+=$traf_inza[$i+$j+2];
+$sum3+=$traf_inza[$i+$j+3];
+<br>
+$query="INSERT INTO eth0 (date,ip,sendmail,squid,nat) VALUES ('$date','$traf_ip','$traf_mail','$traf_squid','$traf_nat')";
+$result = mysql_query($query,$link);
+$j+=3;
+<br>}
+$query="INSERT INTO eth0 (date,ip,sendmail,squid,nat) VALUES ('$date','SPACEDUST','$sum1','$sum2','$sum3')";
+$result = mysql_query($query,$link);
+<br>
+$j=0;
+$sum1=0;
+$sum2=0;
+for($i=0;$i<(count($traf_inza1)/3)-1;$i++)
+{
+$traf_ip=trim($traf_inza1[$i+$j]);
+$traf_out=trim($traf_inza1[$i+$j+1]);
+$traf_in=trim($traf_inza1[$i+$j+2]);
+$sum1+=$traf_inza1[$i+$j+1];
+$sum2+=$traf_inza1[$i+$j+2];
+$query="INSERT INTO eth1 (date,ip,output,input) VALUES ('$date','$traf_ip','$traf_out','$traf_in')";
+$result = mysql_query($query,$link);
+$j+=2;}
+$query="INSERT INTO eth1 (date,ip,output,input) VALUES ('$date','SPACEDUST','$sum1','$sum2')";
+$result = mysql_query($query,$link);
+mysql_close($link);
+exec("/usr/bin/rsh localhost clear ip accounting");
+?>
+
+
+</pre></div></p>
+
+<p><font color=green>index_mysql2.php - это скрипт который выдирает статистику из базы spacedust(mysql)</font>
+<div class="codeheader">/var/www/html/traf_inza/index/index_mysql2.php</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+&lt;?php
+if(isset($_POST['month_begin']) && isset($_POST['year_begin']) && isset($_POST['day_begin']) && isset($_POST['year_end']) && isset($_POST['month_end']) && isset($_POST['day_end']))
+{
+  $date_d1=$_POST['day_begin'];
+  $date_m1=$_POST['month_begin'];
+  $date_y1=$_POST['year_begin'];
+  $date_d2=$_POST['day_end'];
+  $date_m2=$_POST['month_end'];
+  $date_y2=$_POST['year_end'];
+  <br>
+  $date_begin=$date_y1."-".$date_m1."-".$date_d1;
+  $date_end=$date_y2."-".$date_m2."-".$date_d2;
+<br>
+echo "&lt;HTML>&lt;TITLE> ipcad.spacedust.ru $date_begin  -  $date_end &lt;/TITLE>&lt;/HTML>";
+<br>
+echo "&lt;table border=1>\n";
+echo "&lt;tr>&lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>IP&lt;/front>&lt;/b>&lt;/td>
+      &lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>SENDMAIL[MB]&lt;/front>&lt;/b>&lt;/td>
+      &lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>SQUID[MB]&lt;/front>&lt;/b>&lt;/td>
+      &lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>NAT[MB]&lt;/front>&lt;/b>&lt;/td>&lt;/tr>\n";
+<br>
+$link = mysql_connect("localhost", "root", "") or die("no connect");
+mysql_select_db("spacedust", $link) or die("no vibor");
+<br>
+$ip_array=file("/var/www/html/traf_inza/eth0");
+for($i=0;$i&lt;count($ip_array);$i++)
+{
+$ip=trim($ip_array[$i]);
+$query="select * from eth0 where ip='$ip' && date>='$date_begin' && date&lt;='$date_end';";
+$result = mysql_query($query,$link);
+$sum_mail=0;
+$sum_squid=0;
+$sum_nat=0;
+<br>
+while ($traf=mysql_fetch_row($result))
+  {
+    $sum_mail+=$traf[3];
+    $sum_squid+=$traf[4];
+    $sum_nat+=$traf[5];
+  }
+<br>
+printf("&lt;tr>&lt;td>&lt;FONT SIZE=3 COLOR=blue>&lt;b>%s&lt;/b>&lt;/front>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=black>&lt;b>%9.2f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=black>&lt;b>%9.2f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=black>&lt;b>%9.2f&lt;/b>&lt;/font>&lt;/td>&lt;/tr>\n",
+         $ip,$sum_mail,$sum_squid,$sum_nat);
+<br>
+}
+<br>
+$query="select * from eth0 where ip='SPACEDUST' && date>='$date_begin' && date&lt;='$date_end';";
+$result = mysql_query($query,$link);
+$sum_mail=0;
+$sum_squid=0;
+$sum_nat=0;
+while ($traf=mysql_fetch_row($result))
+  {
+    $sum_mail+=$traf[3];
+    $sum_squid+=$traf[4];
+    $sum_nat+=$traf[5];
+  }
+printf("&lt;tr>&lt;td>&lt;FONT SIZE=3 COLOR=blue>&lt;b>SPACEDUST.RU&lt;/b>&lt;/front>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=red>&lt;b>%9.2f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=red>&lt;b>%9.2f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=red>&lt;b>%9.2f&lt;/b>&lt;/font>&lt;/td>&lt;/tr>\n",
+         $sum_mail,$sum_squid,$sum_nat);
+<br>
+<br>
+echo "&lt;/table>";
+<br>
+echo "&lt;table border=1>\n";
+echo "&lt;tr>&lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>IP&lt;/front>&lt;/b>&lt;/td>
+      &lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>OUTPUT[MB]&lt;/front>&lt;/b>&lt;/td>
+      &lt;td>&lt;FONT SIZE=3 COLOR=green>&lt;b>INPUT[MB]&lt;/front>&lt;/b>&lt;/td>&lt;/tr>\n";
+<br>
+$ip_array=file("/var/www/html/traf_inza/eth1");
+for($i=0;$i&lt;count($ip_array);$i++)
+{
+   $ip=trim($ip_array[$i]);
+   $query="select * from eth1 where ip='$ip' && date>='$date_begin' && date&lt;='$date_end';";
+   $result = mysql_query($query,$link);
+   $sum_out=0;
+   $sum_in=0;
+while ($traf=mysql_fetch_row($result))
+  {
+    $sum_out+=$traf[3];
+    $sum_in+=$traf[4];
+  }
+<br>        
+printf("&lt;tr>&lt;td>&lt;FONT SIZE=3 COLOR=blue>&lt;b>%s&lt;/b>&lt;/front>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=black>&lt;b>%9.4f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=black>&lt;b>%9.4f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/tr>\n",$ip,$sum_out,$sum_in);
+<br>
+}
+<br>
+$query="select * from eth1 where ip='SPACEDUST' && date>='$date_begin' && date&lt;='$date_end';";
+$result = mysql_query($query,$link);
+$sum_out=0;
+$sum_in=0;
+while ($traf=mysql_fetch_row($result))
+  {
+    $sum_out+=$traf[3];
+    $sum_in+=$traf[4];
+  }
+<br>
+printf("&lt;tr>&lt;td>&lt;FONT SIZE=3 COLOR=blue>&lt;b>SPACEDUST.RU&lt;/b>&lt;/front>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=red>&lt;b>%9.4f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/td>&lt;td>&lt;FONT SIZE=3 COLOR=red>&lt;b>%9.4f&lt;/b>&lt;/font>&lt;/td>
+         &lt;/tr>\n",$sum_out,$sum_in);
+<br>
+<br>
+echo "&lt;/table>";
+mysql_close($link);
+<br>
+}
+?>
+</pre></div></p>
+
+<p><font color=green>index.php - это наш головной фаил для web морды</font>
+<div class="codeheader">/var/www/html/traf_inza/index/index.php</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+&lt;HTML>
+&lt;TITLE> spacedust.trafice.ipcad.ru&lt;/TITLE>
+&lt;BODY>
+&lt;FORM method="POST" action="index_mysql2.php">
+&lt;SELECT name="day_begin">
+    &lt;OPTION VALUE="01">01
+    &lt;OPTION VALUE="02">02
+    &lt;OPTION VALUE="03">03
+    &lt;OPTION VALUE="04">04
+    &lt;OPTION VALUE="05">05
+    &lt;OPTION VALUE="06">06
+    &lt;OPTION VALUE="07">07
+    &lt;OPTION VALUE="08">08
+    &lt;OPTION VALUE="09">09
+    &lt;OPTION VALUE="10">10
+    &lt;OPTION VALUE="11">11
+    &lt;OPTION VALUE="12">12
+    &lt;OPTION VALUE="13">13
+    &lt;OPTION VALUE="14">14
+    &lt;OPTION VALUE="15">15
+    &lt;OPTION VALUE="16">16
+    &lt;OPTION VALUE="17">17
+    &lt;OPTION VALUE="18">18
+    &lt;OPTION VALUE="19">19
+    &lt;OPTION VALUE="20">20
+    &lt;OPTION VALUE="21">21
+    &lt;OPTION VALUE="22">22
+    &lt;OPTION VALUE="23">23
+    &lt;OPTION VALUE="24">24
+    &lt;OPTION VALUE="25">25
+    &lt;OPTION VALUE="26">26
+    &lt;OPTION VALUE="27">27
+    &lt;OPTION VALUE="28">28
+    &lt;OPTION VALUE="29">29
+    &lt;OPTION VALUE="30">30
+    &lt;OPTION VALUE="31">31
+&lt;/SELECT>
+<br>
+&lt;SELECT name="month_begin">
+    &lt;OPTION VALUE="01">January
+    &lt;OPTION VALUE="02"> February
+    &lt;OPTION VALUE="03">March
+    &lt;OPTION VALUE="04">April
+    &lt;OPTION VALUE="05"> May
+    &lt;OPTION VALUE="06">June
+    &lt;OPTION VALUE="07">July
+    &lt;OPTION VALUE="08"> August
+    &lt;OPTION VALUE="09 ">September
+    &lt;OPTION VALUE="10">October
+    &lt;OPTION VALUE="11"> November
+    &lt;OPTION VALUE="11">December
+&lt;/SELECT>
+&lt;SELECT name="year_begin">
+    &lt;OPTION VALUE="2008">2008
+    &lt;OPTION VALUE="2009">2009
+    &lt;OPTION VALUE="2010">2010
+&lt;/SELECT>
+&lt;SELECT name="day_end">
+    &lt;OPTION VALUE="01">01
+    &lt;OPTION VALUE="02">02
+    &lt;OPTION VALUE="03">03
+    &lt;OPTION VALUE="04">04
+    &lt;OPTION VALUE="05">05
+    &lt;OPTION VALUE="06">06
+    &lt;OPTION VALUE="07">07
+    &lt;OPTION VALUE="08">08
+    &lt;OPTION VALUE="09">09
+    &lt;OPTION VALUE="10">10
+    &lt;OPTION VALUE="11">11
+    &lt;OPTION VALUE="12">12
+    &lt;OPTION VALUE="13">13
+    &lt;OPTION VALUE="14">14
+    &lt;OPTION VALUE="15">15
+    &lt;OPTION VALUE="16">16
+    &lt;OPTION VALUE="17">17
+    &lt;OPTION VALUE="18">18
+    &lt;OPTION VALUE="19">19
+    &lt;OPTION VALUE="20">20
+    &lt;OPTION VALUE="21">21
+    &lt;OPTION VALUE="22">22
+    &lt;OPTION VALUE="23">23
+    &lt;OPTION VALUE="24">24
+    &lt;OPTION VALUE="25">25
+    &lt;OPTION VALUE="26">26
+    &lt;OPTION VALUE="27">27
+    &lt;OPTION VALUE="28">28
+    &lt;OPTION VALUE="29">29
+    &lt;OPTION VALUE="30">30
+    &lt;OPTION VALUE="31">31
+&lt;/SELECT>
+<br>
+<br>
+&lt;SELECT name="month_end">
+    &lt;OPTION VALUE="01">January
+    &lt;OPTION VALUE="02"> February
+    &lt;OPTION VALUE="03">March
+    &lt;OPTION VALUE="04">April
+    &lt;OPTION VALUE="05"> May
+    &lt;OPTION VALUE="06">June
+    &lt;OPTION VALUE="07">July
+    &lt;OPTION VALUE="08"> August
+    &lt;OPTION VALUE="09 ">September
+    &lt;OPTION VALUE="10">October
+    &lt;OPTION VALUE="11"> November
+    &lt;OPTION VALUE="11">December
+&lt;/SELECT>
+<br>
+&lt;SELECT name="year_end">
+    &lt;OPTION VALUE="2008">2008
+    &lt;OPTION VALUE="2009">2009
+    &lt;OPTION VALUE="2010">2010
+&lt;/SELECT>
+<br>
+&lt;INPUT TYPE="submit" VALUE="OK">
+&lt;/FORM>
+<br>
+<br>
+&lt;FORM method="POST" action="index_eth0.php">
+&lt;INPUT TYPE="submit" VALUE="internal interface [eth0]">
+&lt;/FORM>
+&lt;FORM method="POST" action="index_eth1.php">
+&lt;INPUT TYPE="submit" VALUE="external interface [eth1]">
+&lt;/FORM>
+&lt;/BODY>
+&lt;/HTML>
+</pre></div></p>
+<br>
+<br><h3><FONT SIZE=3 COLOR=blue><b>Настраиваем httpd </font></b></h3>
+
+<p><font color=green>Создаем фаил traf_inza.conf в каталоге /etc/httpd/conf.d/ или где то у вас установлен apache</font>
+<div class="codeheader">/etc/httpd/conf.d/traf_inza.conf</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+Alias /traf_inza /var/www/html/traf_inza/index
+&lt;Directory /var/www/html/traf_inza/index>
+        DirectoryIndex index.php
+&lt;/Directory>
+</pre></div></p>
+<p> Ну и все набираем в браузере <font color=red>http://192.168.50.3/traf_inza/</font> и наслаждаемся:)</p>
+<br>
+
+</BODY>
+
+</HTML>
+

@@ -1,0 +1,6 @@
+C:\proekt\cons_send\cons_send\bin\Debug\cons_send.exe.config
+C:\proekt\cons_send\cons_send\obj\Debug\cons_send.csprojResolveAssemblyReference.cache
+C:\proekt\cons_send\cons_send\bin\Debug\cons_send.exe
+C:\proekt\cons_send\cons_send\bin\Debug\cons_send.pdb
+C:\proekt\cons_send\cons_send\obj\Debug\cons_send.exe
+C:\proekt\cons_send\cons_send\obj\Debug\cons_send.pdb

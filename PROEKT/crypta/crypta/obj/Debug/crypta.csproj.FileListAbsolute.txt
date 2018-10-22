@@ -1,0 +1,8 @@
+C:\proekt\crypta\crypta\bin\Debug\crypta.exe.config
+C:\proekt\crypta\crypta\bin\Debug\crypta.exe
+C:\proekt\crypta\crypta\bin\Debug\crypta.pdb
+C:\proekt\crypta\crypta\bin\Debug\Newtonsoft.Json.dll
+C:\proekt\crypta\crypta\bin\Debug\Newtonsoft.Json.xml
+C:\proekt\crypta\crypta\obj\Debug\crypta.csprojResolveAssemblyReference.cache
+C:\proekt\crypta\crypta\obj\Debug\crypta.exe
+C:\proekt\crypta\crypta\obj\Debug\crypta.pdb

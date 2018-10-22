@@ -1,0 +1,66 @@
+<html>
+<body>
+<table border=1>
+<tr>
+<td>mssql_server</td>
+<td>сервер  mssql</td>
+</tr>
+<tr>
+<td>mssql_login</td>
+<td>им€ пользовател€   mssql</td>
+</tr>
+
+<tr>
+<td>mssql_passwd</td>
+<td>пароль mssql</td>
+</tr>
+<tr>
+<td>path</td>
+<td>«десь надо указать путь , куда будет временно писатьс€ бекап базы и ее архив</td>
+</tr>
+
+<tr>
+<td>dst_zipr</td>
+<td>путь назначени€ архива базы</td>
+</tr>
+<tr>
+<td>smtp_server</td>
+<td>сервер электронной почты , через кого будем отправл€ть письмо (отчет) , о проделанной работе</td>
+</tr>
+
+<tr>
+<td>smtp_login</td>
+<td>им€ пользовател€ дл€ авторизации на smtp</td>
+</tr>
+<tr>
+<td>smtp_passwd</td>
+<td>пароль дл€ авторизации на smtp</td>
+</tr>
+
+<tr>
+<td>smtp_from</td>
+<td>электронный €щик, от кого должно придти письмо</td>
+</tr>
+<tr>
+<td>smtp_to</td>
+<td>электронный €щик, кому прислать отчет</td>
+</tr>
+
+<table>
+
+<p><b>ѕример</b></p>
+<p align=left>
+mssql_server=192.168.0.10<br>
+mssql_login=sa<br>
+mssql_passwd=12345678<br>
+path=C:\backup\<br>
+dst_zip= \\82.15.156.123\C$\backup\zip\<br>
+smtp_server=192.168.0.11<br>
+smtp_login=vsenkevich@adm.ru<br>
+smtp_passwd=12345678<br>
+smtp_from= vsenkevich@adm.ru<br>
+smtp_to= vsenkevich@adm.ru hosting@list.ru<br>
+
+</p>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<p align="left"><span style="text-decoration: underline;"><strong>¬ архиве show_process.zip находитьс€ три файла:</strong></span></p>
+<p align="left">Х	process.conf  ----------------- (фаил конфигурации)<br /> Х	in  ------------------------------- (сюда пишутс€ названи€ процессов )<br /> Х	show_process.exe  ---------- исполн€емый фаил</p>
+<p align="left"><span style="text-decoration: underline;"><strong>‘айл in </strong></span></p>
+<p align="left">¬ этот фаил мы будем писать название процессов которые хотим отследить, например:<br /> Zuma.exe<br /> putty.exe<br /> vmnat.exe<br /> puttytel.exe</p>
+<p align="left"><strong>‘аил  process.conf</strong></p>
+<p align="left">Ёто фаил конфигурации, в котором можно измен€ть всего четыре параметра:</p>
+<table border="1">
+<tbody>
+<tr>
+<td>path_out</td>
+<td>здесь указываем полный путь к файлу куда будут писатьс€ логи</td>
+</tr>
+<tr>
+<td>path_in</td>
+<td>здесь указываем полный путь к файлу</td>
+</tr>
+<tr>
+<td>in time</td>
+<td>здесь указываем врем€ в секундах, через которое программа будет провер€ть , если данный процесс в системе</td>
+</tr>
+<tr>
+<td>kill</td>
+<td>здесь указываем либо У0Ф ничего не делать с процессом , либо У1Ф Ц убивать все процессы из списка in</td>
+</tr>
+</tbody>
+</table>
+<p align="left">Ќапример:<br /> path_out=\\192.168.50.4\process\out <br />path_in=\\192.168.50.4\process\in <br />time=15 <br />kill=1</p>
+<p align="left"><strong>‘аил  show_process.exe</strong></p>
+<p align="left">»сполн€емый фаил , запускатьс€ он должен с параметром У-cФ , после которого указываем путь к файлу process.conf  , например<br /> <span style="color: red;">show_process.exe -c \\192.168.50.4\process\process.conf</span></p>
+<p align="left"><br /> ѕример логов:<br /> <br /> 30.2.2008 15:57:0 192.168.50.8 putty.exe<br /> 30.2.2008 15:57:15 192.168.50.8 putty.exe<br /> 30.2.2008 15:57:30 192.168.50.8 putty.exe<br /> 30.2.2008 15:57:45 192.168.50.8 putty.exe<br /> 30.2.2008 15:58:0 192.168.50.8 putty.exe<br /> 30.2.2008 15:58:15 192.168.50.8 putty.exe<br /> 30.2.2008 15:58:30 192.168.50.8 putty.exe<br /> 30.2.2008 15:58:45 192.168.50.8 putty.exe<br /> <br /> <br /> ѕример использовани€ программы , если у вас в сети используетс€ доменный сервер, может сделать чтоб <br />программа грузилась из сети на всех компьютерахЕЕЕ..</p>
+<p><a href="images/files/show_process/show_process.zip"><span style="color: blue;">download_show_process</span></a> <br /><a href="images/files/show_process/documentaciya.pdf"><span style="color: blue;">download_стать€_pdf</span></a></p>

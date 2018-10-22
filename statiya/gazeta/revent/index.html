@@ -1,0 +1,67 @@
+<?php
+$link = mysql_connect("localhost", "root", "") or die("no connect");
+mysql_select_db("counter", $link) or die("no vibor");
+$day=date('d');
+$month=date('m');
+$year=date('y');
+$count2=0;
+$date="20".$year."-".$month."-".$day;
+$ip=getenv("REMOTE_ADDR")." ".getenv("HTTP_X_FORWARDED_FOR");
+$query="select * from counter where ip='$ip' && other='revent'";
+$result=mysql_query($query,$link);
+while ($count=mysql_fetch_row($result))
+  {
+    if($ip==$count[2] && $count[4]=="revent")
+    {
+    $count1=$count[3]+1;
+    $query="update counter set input='$count1',date='$date' where ip='$ip' && other='revent'";
+    $result=mysql_query($query,$link);
+    $count2++;
+    }
+
+  }
+
+
+
+if($count2==0)
+{
+ $query="INSERT INTO counter (date,ip,input,other) VALUES ('$date','$ip','1','revent')";
+ $result = mysql_query($query,$link);
+ mysql_close($link);
+}
+?>
+
+
+<HTML>
+<HEAD><TITLE> RemoteEvent </TITLE>
+<meta http-equiv="content-type" content="text/html; charset=windows-1251">
+</HEAD>
+<link rel="stylesheet" type="text/css" href="style.css">
+<style type="text/css">
+P {
+ text-align: justify; /* Выравнивание по ширине */
+}
+</style>
+<BODY BGCOLOR="#DDE1C2" TEXT="#002040">
+<p><h3 align=center> <font color=blue>RemoteEvent - удаленный сбор информации о событиях Windows 2003 server
+</font></h3></p>
+<br>
+<br>
+<br>
+<br>
+<br>
+<ul>
+<li><b>Собирает информацию  с просмотра событий</b></li><br>
+<li><b>Осуществляет дозвон до удаленного сервера и скачивает файлы с содержимым event log</b></li><br>
+<li><b>Приводит скаченные файлы в нормальный вид (используя графический интерфейс )<b></li><br>
+</ul>
+<br>
+<p><font color=green><a href=RemoteEvent.exe> Download RemoteEvent</a></font>
+<p><font color=green><a href=administrator.pdf> Руководство администратора</a></font>
+<p><font color=green><a href=RRASserver.pdf> Настройка RRASserver </a></font>
+<p><font color=green><a href=RemoteEvent.ppt> Презентация</a></font></p>
+<br>
+</BODY>
+</HTML>
+
+

@@ -1,0 +1,6 @@
+C:\proekt\shrinkbase\shrinkbase\bin\Debug\shrinkbase.exe.config
+C:\proekt\shrinkbase\shrinkbase\bin\Debug\shrinkbase.exe
+C:\proekt\shrinkbase\shrinkbase\bin\Debug\shrinkbase.pdb
+C:\proekt\shrinkbase\shrinkbase\obj\Debug\shrinkbase.csprojResolveAssemblyReference.cache
+C:\proekt\shrinkbase\shrinkbase\obj\Debug\shrinkbase.exe
+C:\proekt\shrinkbase\shrinkbase\obj\Debug\shrinkbase.pdb

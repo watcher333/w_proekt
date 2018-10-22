@@ -1,0 +1,204 @@
+<HTML>
+<TITLE> filial </TITLE>
+<link rel="stylesheet" type="text/css" href="style.css">
+<style type="text/css">
+P {
+ text-align: justify; /* Выравнивание по ширине */
+}
+</style>
+<BODY BGCOLOR="#DDE1C2" TEXT="#002040">
+<h2 align=center>Воруем интернет у своего филиала </h2>
+<br>
+
+<p><b>Исходный данные: </b></p>
+<table border=1>
+<tr><td><FONT SIZE=3 COLOR=green><b>84.56.32.7</front></b></td>
+     <td><FONT SIZE=3 COLOR=green><b>Головной офис</front></b></td></tr>
+<tr><td><FONT SIZE=3 COLOR=green><b>84.56.54.34</front></b></td>
+     <td><FONT SIZE=3 COLOR=green><b>Филиал</front></b></td></tr>     
+</table>
+<br>
+<p> <b>Задача: </b></p>
+<p>Нужно каждый месяц забирать определенное количество MB по 
+прокси серверу у своего филиал</p>
+<br>
+<p> <b>Обязательный условия: </b></p>
+<p><ul>
+<li> Должен быть одинаковый провайдер(трафик внутри сети бесплатный)</li>
+<li> прокси сервер на стороне филиала должен быть наружу</li>
+</ul></p>
+<br>
+<p><b>Архитектура</b></p>
+<p>Каждый месяц первого числа наш прокси сервер(squid) будет переключаться в каскадный режим(т.е. будет работать 
+через другой прокси), каждуй ночь данные будут скидываться в базу mysql, как только набираем определенное 
+количество MB переключаемся обратно(считать трафик будем c помощью ipcad)</p>
+<br><p><b><FONT SIZE=3 COLOR=blue>Настраиваем squid </font></b><br>
+<p> <b>У вас должно быть три файла conf в каталоге squid(/etc/squid)  </b></p>
+<p><ul>
+<li> squid.conf - наш основной фаил</li>
+<li> squid.conf_kudr - для главного офиса(это должна быть точная копия файла squid.conf)</li>
+<li> squid.conf_b255 - для филиала(отличается одной строчкой от squid.conf)</li>
+</ul>
+<div class="codeheader">/etc/squid/squid.conf_b255 - добавляем вот эту строчку</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+cache_peer 84.56.54.34 parent 3128 0 no-query</pre></div>
+84.56.54.34:3128 - удаленный прокси сервер</p>
+<br><p><b><FONT SIZE=3 COLOR=blue>Настраиваем ipcad: </font></b><br>
+<div class="codeheader">ipcad.conf</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+capture-ports enable;
+buffers = 128k;
+interface eth1;
+interface eth0;
+aggregate 192.168.50.0/24 strip32;
+rsh enable at 127.0.0.1;
+rsh root@127.0.0.1 admin;
+rsh root@127.0.0.1 backup;
+rsh root@127.0.0.1;
+rsh 127.0.0.1 view-only;
+rsh ttl = 3;
+rsh timeout = 30;
+dumpfile = /var/log/ipcad/ipcad.dump;
+pidfile = /var/run/ipcad.pid;
+memory_limit = 80m;</pre></div></p>
+
+<br><h3><FONT SIZE=3 COLOR=blue><b>Настраиваем mysql </font></b></h3>
+<p>Создадим базу допустим spacedust
+<div class="codeheader">Создаем базу где будет храниться вся инфа</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@spacedust ~]# mysql -u root 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 1000 to server version: 4.1.20
+<br>
+Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+<br>
+mysql> create database spacedust;
+Query OK, 1 row affected (0.03 sec)
+<br>
+mysql> show databases;
++-----------+
+| Database  |
++-----------+
+| mysql     |
+| spacedust |
+| test      |
++-----------+
+3 rows in set (0.00 sec)
+<br>
+mysql></pre></div></p>
+<p> Теперь создадим таблицу b255 куда будут скидываться наши данные
+<div class="codeheader">Таблица b255</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@spacedust ~]# mysql -u root
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 1001 to server version: 4.1.20
+<br>
+Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+<br>
+mysql> use spacedust;
+Database changed
+mysql> create table b255( id int(11) NOT NULL AUTO_increment,date DATE,ip VARCHAR(90) not null,input int(90) not null, primary key(id));
+Query OK, 0 rows affected (0.06 sec)
+<br>
+mysql> show tables;
++---------------------+
+| Tables_in_spacedust |
++---------------------+
+| b255              
++---------------------+
+2 rows in set (0.02 sec)
+<br>
+mysql>
+</pre></div></p>
+<br><h3><FONT SIZE=3 COLOR=blue><b>Пишем скрипты </font></b></h3>
+<p>Создаем в каталоге /var/www/html папку traf_inza </p>
+
+<p> Считаем входящий трафик идущий на внешний интерфейс по порту в 3128(в реальном времени)
+от филиала. Создаем скрипт traf_b255 со следующим содержанием:<br>
+<div class="codeheader">/var/www/html/traf_inza/traf_b255;</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+/usr/bin/rsh localhost show ip accounting | grep -w 84.56.32.7 |awk '{if($1=="84.56.54.34" && $8=="eth1" && $5=="3128"){s+=$4}}  END {printf "%i\n ",((s/1024)/1024)}'
+</pre></div><p>
+
+<p>Скрипт который будет запускаться каждую ночь(время задаете в crond), он будет
+ скидывать статистику за день в базу mysql и обнулять ее 
+ Создаем скрипт mysql_b255 со следующим содержанием:<br>
+ <div class="codeheader">/var/www/html/traf_inza/mysql_b255;</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+path="/var/www/html/traf_inza/traf_b255";
+day=$(date +%d);
+month=$(date +%m);
+year=$(date +%Y);
+date=$year-$month-$day;
+execl=$(exec $path);
+traf=$(expr $execl);
+mysql -u root -Bse "use spacedust;insert into b255 (date,ip,input) values ('$date','84.56.32.7','$traf');"
+/usr/bin/rsh localhost clear ip accounting
+</pre></div><p>
+
+<p> Теперь сам скрипт который будет заниматься переключением, можете его загнать в crond
+и запускать каждые час или два, у меня стоит забирать 700MB, и до 10 числа месяца делать
+перелючение, до это времени мы полюбому добираем столько метров.
+ Создаем скрипт squid_b255 со следующим содержанием:<br>
+<div class="codeheader">/var/www/html/traf_inza/squid_b255;</div>    
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+path="/var/www/html/traf_inza/b255";
+path1="/etc/squid/squid.conf";
+path2="/etc/squid/squid.conf_kudr";
+path3="/etc/squid/squid.conf_b255";
+limit=700;
+rm -f $path;
+sum=0;
+day=$(date +%d);
+month=$(date +%m);
+year=$(date +%Y);
+date_begin=$year-$month-01;
+date_end=$year-$month-31;
+mysql -u root -Bse "use spacedust; select input from b255 where ip='84.56.32.7' && date>='$date_begin' && date<='$date_end';" >> $path
+/var/www/html/traf_inza/traf_b255 >> $path
+for i in $(cat $path); do
+sum=$(expr $i + $sum);
+done
+echo "Zabrali u b255 = " $sum"Mb";
+rm -f $path;
+
+if [ $(expr $day) -lt 10 ]; then
+   {
+   echo "day" $(expr $day) - "perekluchenie ON";
+
+if [ $sum -lt $limit ]; then
+  {
+   rm -f $path1;
+   cp -p $path3 $path1;
+   /etc/init.d/squid reload;
+   echo $sum"Mb" "<" $limit"Mb";
+   echo "now squid - b255";
+  }
+fi
+
+if [ $sum -gt $limit ]; then
+  {
+   rm -f $path1;
+   cp -p $path2 $path1;
+   /etc/init.d/squid reload;
+   echo $sum"Mb" ">" $limit"Mb";
+   echo "now squid - kudr";
+  }
+fi
+ }
+else
+  {
+    echo "day" $(expr $day) - "perekluchenie OFF";
+  }
+fi
+
+</pre></div><p>
+
+
+
+
+
+</BODY>
+
+</HTML>
+

@@ -1,0 +1,10 @@
+CREATE trigger bart_bi0 for bart
+active before insert position 0
+AS
+begin
+  if ((new.id is null) or (new.id = 0)) then
+  begin
+    new.id = gen_id(gidTest, 1);
+  end
+
+end

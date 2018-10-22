@@ -1,0 +1,2 @@
+C:\proekt\convert\convert\bin\Debug\convert.exe.config
+C:\proekt\convert\convert\obj\Debug\convert.csprojResolveAssemblyReference.cache

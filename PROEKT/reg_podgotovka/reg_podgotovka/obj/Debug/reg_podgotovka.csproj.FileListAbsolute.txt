@@ -1,0 +1,6 @@
+C:\proekt\reg_podgotovka\reg_podgotovka\bin\Debug\reg_podgotovka.exe.config
+C:\proekt\reg_podgotovka\reg_podgotovka\obj\Debug\reg_podgotovka.csprojResolveAssemblyReference.cache
+C:\proekt\reg_podgotovka\reg_podgotovka\bin\Debug\reg_podgotovka.exe
+C:\proekt\reg_podgotovka\reg_podgotovka\bin\Debug\reg_podgotovka.pdb
+C:\proekt\reg_podgotovka\reg_podgotovka\obj\Debug\reg_podgotovka.exe
+C:\proekt\reg_podgotovka\reg_podgotovka\obj\Debug\reg_podgotovka.pdb

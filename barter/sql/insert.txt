@@ -1,0 +1,2 @@
+INSERT INTO bart(date1, kv, adress, ploshad, etash, cena, hozyaev, mat_dom, nal_balkon, nal_tel, sobstvennost, smesh_izol, san_uzel, kon_tel)
+    Values('01.01.2009', 'aaaa', 'aaaa', 'aaaa', 'aaaa', 'aaaa', 'aaaa', 'aaaa', 'aaaa', 'aaaa', 'aaaa', 'aaaa''aaaa', 'aaaa', 'aaaa')

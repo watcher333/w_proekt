@@ -1,0 +1,39 @@
+#!/bin/bash
+
+readonly DIR_SEP=" "
+readonly DIR_SEP2=":"
+
+todate=$(date +"%H")
+date=$(date +"%d-%m-%y %T")
+echo $date > date_time
+
+while read line
+do
+#   echo "$line"
+    v1=(${line//${DIR_SEP1}/ })
+    v2=(${v1[1]//${DIR_SEP2}/ })
+done < date_time
+
+#echo "${v2[0]}"
+
+if((${v2[0]:0:1}==0 && ${v2[0]:1:1}==0)); then
+#if 12 or 0
+v2[0]=12
+fi
+
+if((${v2[0]:0:1}==0)); then
+v2[0]=${v2[0]:1:1}
+fi
+
+for ((j=0; j<$(( ( RANDOM % 10 )  + 1 )); j++)) do
+
+if((${v2[0]}<12 )); then
+echo "${v1[0]}"
+fi
+
+if((${v2[0]}==12 || ${v2[0]}>12 )); then
+/usr/bin/cp -rf date_time date_time.bak
+echo $date >> date_time
+fi
+
+done

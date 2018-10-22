@@ -1,0 +1,104 @@
+<!-- P {  text-align: justify; /* Выравнивание по ширине */ } -->
+<p><strong>Скачиваем исходники : </strong></p>
+<table border="1">
+<tbody>
+<tr>
+<td><a href="ftp://ftp.kernel.org/usr/pub/linux/kernel/v2.6/linux-2.6.26.1.tar.bz2"><span style="color: green; font-size:2 x-small;"><strong>linux-2.6.26.1.tar.bz2 - само ядро</strong></span></a></td>
+</tr>
+<tr>
+<td><a href="ftp://ftp.kernel.org/usr/pub/linux/kernel/v2.6/patch-2.6.26.1.bz2"><span style="color: green; font-size:2 x-small;"><strong>patch-2.6.26.1.bz2 - патч</strong></span></a></td>
+</tr>
+<tr>
+<td><a href="http://www.mosix.org"><span style="color: green; font-size:2 x-small;"><strong>отсюда можно скачать mosix, но качаем именно для нашей версии ядра</strong></span></a></td>
+</tr>
+</tbody>
+</table>
+<p> </p>
+<p><strong>Исходные данные : </strong></p>
+<table border="1">
+<tbody>
+<tr>
+<td><span style="color: green; font-size:2 xx-small;"><strong>172.16.30.10 -  centos1 </strong></span></td>
+</tr>
+<tr>
+<td><span style="color: green; font-size:2 xx-small;"><strong>172.16.30.20 -  centos2 </strong></span></td>
+</tr>
+<tr>
+<td><span style="color: green; font-size:2 xx-small;"><strong>172.16.30.30 -  centos3 </strong></span></td>
+</tr>
+</tbody>
+</table>
+<p> </p>
+<p><strong>Распоковываем архивы и раскидываем их по каталогам </strong></p>
+<div class="codeheader">/root</div>
+<div class="code">[root@centos5k1 ~]# tar -xjf linux-2.6.26.1.tar.bz2<br /> [root@centos5k1 ~]# tar -xjf MOSIX-2.24.2.2.tbz<br /> [root@centos5k1 ~]# bzip2 -d patch-2.6.26.1.bz2<br /> [root@centos5k1 ~]# cp -r linux-2.6.26.1 /usr/src/kernels/<br /> [root@centos5k1 ~]# cp patch-2.6.26.1 /usr/src/kernels/linux-2.6.26.1/</div>
+<p> </p>
+<p><strong>Раскидываем файлы mosix, так как указано ниже </strong></p>
+<div class="codeheader">/root</div>
+<div class="code">[root@centos5k1 ~]# cd mosix-2.24.2.2/<br /> File                     Where                                           chmod<br /> ------------------------------------------------------------------------------<br /> bestnode                /bin                                             u+s<br /> defaults/features       /etc/mosix/features<br /> defaults/tunes          /etc/mosix/tunes<br /> migrate                 /bin<br /> mon                     /bin<br /> mosconf*                /sbin<br /> mospipe                 /bin<br /> mos_checkconf           /sbin<br /> mosctl                  /bin<br /> mosd                    /sbin<br /> mosenv                  /bin<br /> mosixd                  /sbin<br /> moskillall              /bin<br /> mosps                   /bin                                             u+s<br /> mosq                    /bin                                             u+s<br /> mosqueue                /bin<br /> mosrun                  /bin                                             u+s<br /> native                  /bin<br /> postald                 /sbin<br /> qmd                     /sbin<br /> remoted                 /sbin<br /> setcl                   /sbin<br /> setpe                   /sbin<br /> testload                /bin<br /> tune                    /bin<br /> tune_mosix              /bin<br /> mosix                   /etc/init.d/<br /> man/*                   /usr/share/man/</div>
+<p> </p>
+<p><strong>Накладываем патчи на ядро, сначало для системы, потом от mosix</strong></p>
+<p>патч для системы patch-2.6.26.1</p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.26.1/</div>
+<div class="code">[root@centos5k1 linux-2.6.26.1]# patch -p1 -R -i patch-2.6.26.1<br /> patching file Documentation/networking/udplite.txt<br /> patching file Documentation/video4linux/cx18.txt<br /> patching file Makefile<br /> patching file arch/ia64/kvm/kvm-ia64.c<br /> patching file arch/powerpc/kvm/powerpc.c<br /> patching file arch/powerpc/platforms/cell/cbe_cpufreq_pmi.c<br /> patching file arch/s390/kvm/kvm-s390.c<br /> patching file arch/sparc64/kernel/irq.c<br /> patching file arch/sparc64/kernel/ldc.c<br /> patching file arch/sparc64/kernel/time.c<br /> patching file arch/um/include/init.h<br /> patching file arch/x86/Kconfig.cpu<br /> patching file arch/x86/kernel/acpi/sleep.c<br /> patching file arch/x86/kernel/i387.c<br /> patching file arch/x86/kernel/ptrace.c<br /> patching file arch/x86/kernel/reboot.c<br /> patching file arch/x86/kvm/mmu.c<br /> patching file arch/x86/kvm/svm.c<br /> patching file arch/x86/kvm/vmx.c<br /> patching file arch/x86/kvm/x86.c<br /> patching file arch/x86/kvm/x86_emulate.c<br /> patching file arch/x86/mm/init_64.c<br /> patching file drivers/acpi/processor_perflib.c<br /> patching file drivers/cpufreq/cpufreq.c<br /> patching file drivers/dma/iop-adma.c<br /> patching file drivers/ide/ide-cd.c<br /> patching file drivers/media/dvb/dvb-usb/dib0700_devices.c<br /> patching file drivers/media/dvb/dvb-usb/dvb-usb-ids.h<br /> patching file drivers/media/video/Kconfig<br /> patching file drivers/media/video/cx18/cx18-firmware.c<br /> patching file drivers/media/video/cx23885/cx23885-core.c<br /> patching file drivers/media/video/saa7134/saa7134-cards.c<br /> patching file drivers/media/video/saa7134/saa7134-core.c<br /> patching file drivers/media/video/uvc/Kconfig<br /> patching file drivers/media/video/uvc/uvc_driver.c<br /> patching file drivers/media/video/uvc/uvc_status.c<br /> patching file drivers/media/video/uvc/uvc_video.c<br /> patching file drivers/media/video/uvc/uvcvideo.h<br /> patching file drivers/mmc/host/pxamci.c<br /> patching file drivers/net/hamradio/hdlcdrv.c<br /> patching file drivers/net/ixgbe/ixgbe_main.c<br /> patching file drivers/net/myri10ge/myri10ge.c<br /> patching file drivers/net/wireless/ath5k/base.c<br /> patching file drivers/net/wireless/b43legacy/main.c<br /> patching file drivers/rtc/rtc-at91rm9200.c<br /> patching file drivers/spi/mpc52xx_psc_spi.c<br /> patching file drivers/usb/serial/usb-serial.c<br /> patching file fs/dquot.c<br /> patching file fs/ecryptfs/crypto.c<br /> patching file fs/isofs/rock.c<br /> patching file fs/libfs.c<br /> patching file fs/proc/task_mmu.c<br /> patching file include/asm-arm/bitops.h<br /> patching file include/asm-generic/vmlinux.lds.h<br /> patching file include/asm-sparc64/io.h<br /> patching file include/asm-x86/signal.h<br /> patching file include/linux/cpufreq.h<br /> patching file include/linux/ipv6.h<br /> patching file include/linux/kvm_host.h<br /> patching file kernel/cpuset.c<br /> patching file kernel/marker.c<br /> patching file kernel/rcupreempt.c<br /> patching file kernel/sys_ni.c<br /> patching file mm/filemap.c<br /> patching file mm/shmem.c<br /> patching file net/ipv4/tcp_input.c<br /> patching file net/ipv4/udp.c<br /> patching file net/ipv6/ip6_fib.c<br /> patching file scripts/Makefile.modpost<br /> patching file scripts/mod/modpost.c<br /> patching file sound/pci/trident/trident_main.c<br /> patching file virt/kvm/kvm_main.c</div>
+<p> </p>
+<p>копируем патч для mosix и накладываем его на ядро</p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.26.1/</div>
+<div class="code">[root@centos5k1 linux-2.6.26.1]# cp /root/mosix-2.24.2.2/other/patch-2.6.26.1 /usr/src/kernels/linux-2.6.26.1/<br /> [root@centos5k1 linux-2.6.26.1]# patch -p1 -i patch-2.6.26.1<br /> patching file Makefile<br /> patching file arch/x86/configs/i386_defconfig<br /> patching file arch/x86/configs/x86_64_defconfig<br /> patching file arch/x86/ia32/sys_ia32.c<br /> patching file arch/x86/kernel/process_32.c<br /> patching file arch/x86/kernel/process_64.c<br /> patching file arch/x86/kernel/ptrace.c<br /> patching file arch/x86/kernel/setup_64.c<br /> patching file arch/x86/kernel/signal_32.c<br /> patching file arch/x86/kernel/signal_64.c<br /> patching file arch/x86/kernel/vsyscall_64.c<br /> patching file arch/x86/mm/init_64.c<br /> patching file arch/x86/vdso/vdso32-setup.c<br /> patching file arch/x86/vdso/vma.c<br /> patching file fs/binfmt_elf.c<br /> patching file fs/exec.c<br /> patching file fs/pipe.c<br /> patching file fs/proc/base.c<br /> patching file fs/proc/internal.h<br /> patching file include/asm-x86/vgtod.h<br /> patching file include/asm-x86/vsyscall.h<br /> patching file include/linux/connect.h<br /> patching file include/linux/init_task.h<br /> patching file include/linux/mosix.h<br /> patching file include/linux/pipe_fs_i.h<br /> patching file include/linux/prctl.h<br /> patching file include/linux/ptrace.h<br /> patching file include/linux/sched.h<br /> patching file init/Kconfig<br /> patching file init/main.c<br /> patching file kernel/exit.c<br /> patching file kernel/fork.c<br /> patching file kernel/ptrace.c<br /> patching file kernel/sched.c<br /> patching file kernel/signal.c<br /> patching file kernel/sys.c<br /> patching file kernel/timer.c<br /> patching file mm/memory.c<br /> patching file mm/oom_kill.c<br /> patching file mm/swapfile.c<br /> patching file mosix/Makefile<br /> patching file mosix/config.c<br /> patching file mosix/connect.c<br /> patching file mosix/load.c<br /> patching file mosix/mosadmin.c<br /> patching file mosix/mosproc.c</div>
+<p> </p>
+<p>Изменим в файл Makefile, один параметр, теперь наше ядро будет называться так linux-2.6.26-mosix</p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.26.1/</div>
+<div class="code">[root@centos5k1 ~]# cd /usr/src/kernels/linux-2.6.26.1/<br /> [root@centos5k1 linux-2.6.26.1]# cat Makefile | grep "EXTRAVERSION ="<br /> EXTRAVERSION = -mosix</div>
+<p> </p>
+<p><strong>Собираем наше ядро</strong></p>
+<p>Чистка</p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.26.1/</div>
+<div class="code">[root@centos5k1 linux-2.6.26.1]# make mrproper</div>
+<p>Создаем фаил .config - его можно создать, например с помощью команды "make oldconfig".</p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.26.1/</div>
+<div class="code">[root@virtfedora linux-2.6.26.1]# make oldconfig<br /> HOSTCC  scripts/basic/fixdep<br /> HOSTCC  scripts/basic/docproc<br /> HOSTCC  scripts/kconfig/conf.o<br /> HOSTCC  scripts/kconfig/kxgettext.o<br /> SHIPPED scripts/kconfig/zconf.tab.c<br /> SHIPPED scripts/kconfig/lex.zconf.c<br /> SHIPPED scripts/kconfig/zconf.hash.c<br /> .........................................................................................<br /> CRC-CCITT functions (CRC_CCITT) [M/y/?] m<br /> CRC16 functions (CRC16) [M/y/?] m<br /> CRC ITU-T V.41 functions (CRC_ITU_T) [M/y/?] m<br /> CRC32 functions (CRC32) [Y/?] y<br /> CRC7 functions (CRC7) [N/m/y/?] n<br /> CRC32c (Castagnoli, et al) Cyclic Redundancy-Check (LIBCRC32C) [M/y/?] m<br /> #<br /> # configuration written to .config<br /> #</div>
+<p>Обратите на это внимание:</p>
+<p>NOTE: if you modify the kernel configuration, do not touch the following:    a. DO NOT CONFIGURE the "CONFIG_SECURITY" option:         'Security Options' / 'enable different security models'    b. DO NOT CONFIGURE the "CONFIG_HEADERS_CHECK" option:         'Kernel hacking' / 'Run 'make headers_check' when building vmlinux'</p>
+<p>Проверяем включение опций mosix</p>
+<p> </p>
+<div class="code">[root@centos5k1 linux-2.6.26.1]# cat .config | grep MOSIX<br /> CONFIG_MOSIX=y<br /> [root@centos5k1 linux-2.6.26.1]# cat .config | grep CONFIG_BINFMT_ELF<br /> CONFIG_BINFMT_ELF=y<br /> [root@centos5k1 linux-2.6.26.1]# cat .config | grep CONFIG_PROC_FS<br /> CONFIG_PROC_FS=y</div>
+<p> </p>
+<p>Соберем и установим модули(make)</p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.26.1/</div>
+<div class="code">[root@centos5k1 linux-2.6.26.1]# make<br /> scripts/kconfig/conf -s arch/x86/Kconfig<br /> CHK     include/linux/version.h<br /> UPD     include/linux/version.h<br /> CHK     include/linux/utsrelease.h<br /> UPD     include/linux/utsrelease.h<br /> SYMLINK include/asm -&gt; include/asm-x86<br /> CC      kernel/bounds.s<br /> GEN     include/linux/bounds.h<br /> CC      arch/x86/kernel/asm-offsets.s<br /> GEN     include/asm-x86/asm-offsets.h<br /> CALL    scripts/checksyscalls.sh<br /> CC      scripts/mod/empty.o<br /> HOSTCC  scripts/mod/mk_elfconfig<br /> MKELF   scripts/mod/elfconfig.h<br /> HOSTCC  scripts/mod/file2alias.o<br /> HOSTCC  scripts/mod/modpost.o<br /> HOSTCC  scripts/mod/sumversion.o<br /> HOSTLD  scripts/mod/modpost<br /> HOSTCC  scripts/kallsyms<br /> ....................................................</div>
+<p> </p>
+<p>Устанавливаем ядро (make modules_install install)</p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.26.1/</div>
+<div class="code">[root@centos5k1 linux-2.6.26.1]# make modules_install install<br /> INSTALL sound/pci/snd-azt3328.ko<br /> INSTALL sound/pci/snd-bt87x.ko<br /> INSTALL sound/pci/snd-cmipci.ko<br /> INSTALL sound/pci/snd-cs4281.ko<br /> INSTALL sound/pci/snd-cs5530.ko<br /> INSTALL sound/pci/snd-ens1370.ko<br /> INSTALL sound/pci/snd-ens1371.ko<br /> INSTALL sound/pci/snd-es1938.ko<br /> INSTALL sound/pci/snd-es1968.ko<br /> INSTALL sound/pci/snd-fm801.ko<br /> INSTALL sound/pci/snd-intel8x0.ko<br /> INSTALL sound/pci/snd-intel8x0m.ko<br /> INSTALL sound/pci/snd-maestro3.ko<br /> INSTALL sound/pci/snd-rme32.ko<br /> INSTALL sound/pci/snd-rme96.ko<br /> INSTALL sound/pci/snd-sis7019.ko<br /> ..................................................................<br /> DEPMOD  2.6.26-mosix<br /> sh /usr/src/kernels/linux-2.6.26.1/arch/x86/boot/install.sh 2.6.26-mosix arch/x86/boot/bzImage System.map "/boot"</div>
+<p> </p>
+<p> </p>
+<p>Проверяем создание файлов и загрузчик(grub) и перегружаемся</p>
+<div class="codeheader">/usr/src/kernels/linux-2.6.26.1/</div>
+<div class="code">[root@centos5k1 linux-2.6.26.1]# ls /boot/ | grep 2.6.26<br /> initrd-2.6.26-mosix.img<br /> System.map-2.6.26-mosix<br /> vmlinuz-2.6.26-mosix<br /> [root@centos5k1 linux-2.6.26.1]# ls /lib/modules/ | grep 2.6.26<br /> 2.6.26-mosix</div>
+<p> </p>
+<div class="codeheader">/boot/grub/grub.conf</div>
+<div class="code">title Centos (2.6.26-mosix)<br /> root (hd0,0)<br /> kernel /vmlinuz-2.6.26-mosix ro root=/dev/VolGroup00/LogVol00<br /> initrd /initrd-2.6.26-mosix.img</div>
+<p> </p>
+<p> </p>
+<p><strong>Настройка mosix</strong></p>
+<p>Запускаем mosconf_cluster, добавляем 172.16.30.10</p>
+<p> </p>
+<div class="code">[root@centos5k1 ~]# mosconf_cluster<br /> <br /> There are no nodes in your cluster yet:<br /> =======================================<br /> <br /> To add a new set of nodes to your cluster, type 'n'.<br /> To turn on advanced options, type '+'.<br /> For help, type 'h'.<br /> To save and exit, type 'q'.  (to abandon all changes and exit, type 'Q')<br /> <br /> Option :- n<br /> <br /> Adding new node(s) to the cluster:<br /> <br /> First host-name or IP address :- 172.16.30.10<br /> Number of nodes :- 1<br /> <br /> Nodes in your cluster:<br /> ======================<br /> 1. 192.168.50.14<br /> <br /> To add a new set of nodes to your cluster, type 'n'.<br /> To modify an entry, type its number.<br /> To delete an entry, type 'd' followed by that entry-number (eg. d1).<br /> To turn on advanced options, type '+'.<br /> For help, type 'h'.<br /> To save and exit, type 'q'.  (to abandon all changes and exit, type 'Q')<br /> <br /> Option :- q<br /> <br /> Cluster configuration was saved.<br /> <br /> Failed creating temporary file: No such file or directory<br /> <br /> OK to also update the logical node numbers [Y/n]? y<br /> <br /> Suggesting to assign '172.16.30.10'<br /> as the central queue manager for the cluster<br /> (but be cautious if you mix 32-bit and 64-bit nodes in the same cluster)<br /> OK to update it now [Y/n]? y</div>
+<p>Запускаем mosconf, выбираем 7 пункт (Become part of a multi-cluster organizational Grid)</p>
+<div class="code">[root@centos5k1 mosix]# mosconf<br /> MOSIX CONFIGURATION<br /> ===================<br /> <br /> If this is your cluster's file-server and you want to configure MOSIX<br /> for a set of nodes with a common root, please type their common root<br /> directory. Otherwise, if you want to configure the node that you are<br /> running on, just press  :-<br /> <br /> What would you like to configure?<br /> =================================<br /> 1. Which nodes are in this cluster<br /> 2. Authentication                       (ESSENTIAL)<br /> 3. Logical node numbering<br /> 4. Queueing policies<br /> 5. Freezing policies<br /> 6. Miscellaneous policies<br /> 7. Become part of a multi-cluster organizational Grid<br /> <br /> Configure what :- 7<br /> <br /> There are no partners in your multi-cluster Grid yet:<br /> =====================================================<br /> <br /> Please Type the name of a new partner to configure<br /> (or press  to exit) :-<br /> <br /> What would you like to configure next?<br /> ======================================<br /> 1. Which nodes are in this cluster<br /> 2. Partner clusters in your multi-cluster organizational Grid<br /> 3. Authentication                       (ESSENTIAL)<br /> 4. Logical node numbering<br /> 5. Queueing policies<br /> 6. Freezing policies<br /> 7. Miscellaneous policies<br /> q. Exit<br /> <br /> Configure what :- q<br /> [root@centos5k1 mosix]#</div>
+<p>Что получилось в результате:</p>
+<div class="code">[root@centos5k1 mosix]# pwd<br /> /etc/mosix<br /> [root@centos5k1 mosix]# ls<br /> features  freeze.conf  mosix.map  partners  queue.conf  tunes  userview.map  var<br /> [root@centos5k1 mosix]# cat userview.map<br /> 1 172.16.30.10 1<br /> [root@centos5k1 mosix]# cat mosix.map<br /> 172.16.30.10 p<br /> [root@centos5k1 mosix]#</div>
+<p>Добавляем остальные машины в кластер, я прописал их в ручную в фаил, кстати они уже должны быть настроены точно также, сам centos стоит у меня на виртуальной машине, поэтому просто копировал ее в другую папку, запустил и сменил ip</p>
+<div class="code">[root@centos5k1 mosix]# cat mosix.map<br /> 172.16.30.10 1 p<br /> 172.16.30.20 1 p<br /> 172.16.30.30 1 p<br /> [root@centos5k1 mosix]# cat userview.map<br /> 1 172.16.30.10 1<br /> 2 172.16.30.20 1<br /> 3 172.16.30.30 1<br /> [root@centos5k1 mosix]#</div>
+<p>Запускаем mosix</p>
+<div class="code">[root@centos5k1 mosix]# service mosix start<br /> Starting MOSIX...<br /> MOSD - MOSIX Version 2.24.2.2                 [  OK  ]<br /> [root@centos5k1 mosix]#<br /> <br /></div>
+<p> </p>
+<p><strong> Тестируем работу кластера</strong></p>
+<p>Запустим монитор нагрузки "mosmon", нанем будет отражено три наших кластера(1 2 3)</p>
+<p align="left"><img src="images/stories/pic/mosix/1.png" border="0" /></p>
+<p>Давай например запустим программу(john, как ее ставить рассказывать не буду) расшифровки паролей(допустим самбовских ). Запустим с первого кластера, направим на третьи, а наблюдать будем со второго через mon. Будем использовать утилиту mosrun</p>
+<div class="code">[root@centos5k1 ~]# mosrun -e -j3 /root/john-1.7.3.1/run/john /root/smbpasswd<br /> Loaded 229 password hashes with no different salts (LM DES [32/32 BS])</div>
+<p align="left"><img src="images/stories/pic/mosix/2.png" border="0" /></p>
+<p align="left"><img src="images/stories/pic/mosix/3.png" border="0" /></p>
+<p>Как видно из рисунка почти вся нагрузка перешла на третьи кластер(процесс remoted), при этом нагрузка на первом кластере была равна 1-3% , либо ее вообще небыло.</p>
+<p>В заключение скажу , что этот кластер подойдет для вычисления паралельных программ, например MPI</p>

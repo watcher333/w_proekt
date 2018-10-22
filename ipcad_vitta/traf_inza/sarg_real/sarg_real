@@ -1,0 +1,11 @@
+d=$(date +%d)
+m=$(date +%m)
+y=$(date +%Y)
+path="/var/www/html/sarg_real"
+
+rm -rf $path > /dev/null 
+mkdir $path
+sarg -o $path -d $d/$m/$y-$d/$m/$y > /dev/null
+chmod -R 770 $path
+chown -R apache:root $path
+

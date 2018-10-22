@@ -1,0 +1,69 @@
+make_fake_dir()
+Запоминаем текущий католог и переходим в WORKSPACE, проверяем существует ли каталог WORKSPACE/core, если нет то создаем
+и возвращаемся в текущий каталог
+
+make_distr()
+Запоминаем текущий католог и переходим в WORKSPACE
+Запускаем скрипт на питоне с параметрами, если ощибка выводим ERROR: Сompilation failed!!! и выходим.
+Если нет ошибки, возвращаемся в текущий каталог
+
+build_distr ()
+Переходим в WORKSPACE
+Экспортируем в  переменные, значения из коммандной строки и лог
+Запускаем Jinnee/jinnee-utility с параметрами и вывод ее пишем в лог фаил
+Если ошибка , выводим лог на экран и переменной iserror присваиваем YES и возвращаем 1
+
+echo hello nix!
+echo ---------
+echo $WORKSPACE
+hostname -a
+echo ---------
+Определим директорию запуска
+string=$JOB_NAME
+IFS='/' read -a array <<< "$string"
+echo ${array[0]}
+gl_name=${array[0]}
+
+Выводим $WORKSPACE и алиас имени компьютера
+Записываем в массив array путь JOB_NAME, разделяя "/"
+Записываем в gl_name значение нулевого элемента массива, то есть корневую папку
+
+cp -rf /home/sbis/mount_test-osr-source/$PLATFORM_version/present_cloud.txt "$WORKSPACE"
+cd "$WORKSPACE"
+export WORK_DIR=$WORKSPACE
+export SBIS3_NUMBER=`cat present_cloud.txt|awk '{print $1}'`
+export SBIS3_DATE=`cat present_cloud.txt|awk '{print $2}' |awk -F "_" '{print $1}'`
+export SBIS3_TIME=`cat present_cloud.txt|awk '{print $2}' |awk -F "_" '{print $2}'`
+export BUILD_DATE=`echo $BUILD_ID|awk -F "_" '{print $1}'`
+export BUILD_year=`echo $BUILD_DATE|awk -F "-" '{print $1}'`
+export BUILD_month=`echo $BUILD_DATE|awk -F "-" '{print $2}'`
+export BUILD_day=`echo $BUILD_DATE|awk -F "-" '{print $3}'`
+export BUILD_DATE=$BUILD_day.$BUILD_month.$BUILD_year
+export BUILD_TIME=`echo $BUILD_ID|awk -F "_" '{print $2}'`
+export BUILD_HOUR=`echo $BUILD_TIME|awk -F "-" '{print $1}'`
+export BUILD_MINUTE=`echo $BUILD_TIME|awk -F "-" '{print $2}'`
+export BUILD_SECOND=`echo $BUILD_TIME|awk -F "-" '{print $3}'`
+export BUILD_TIME=$BUILD_HOUR:$BUILD_MINUTE:$BUILD_SECOND
+export OTHERS_EDO=$VERSION
+echo =SDK.begin =
+source "$WORKSPACE/sdk/setToSDK.sh" $PLATFORM_version
+echo =SDK.end=
+
+Экспортируем в переменные, выводы файлов и переменные , их столбцы 1 или 2 или 3 с разделителем "-","_"
+Подключаем сценарии setToSDK.sh
+
+rm -rf $WORKSPACE/Jinnee
+if ! [ -d "$WORKSPACE/Jinnee" ]; then
+  mkdir "$WORKSPACE/Jinnee"
+  else echo 'nothing to do'
+fi
+disk_i=/home/sbis/mount_disk_i
+
+cp -f "$SDK/tools/jinnee/jinnee.zip" "$WORKSPACE/Jinnee"
+unzip -o "$WORKSPACE/Jinnee/jinnee.zip"  -d "$WORKSPACE/Jinnee"
+
+rsync -zvr "$SDK/ws" "$WORKSPACE/Jinnee/" > "$WORKSPACE/rsync.log"
+
+Удаляем Jinnee, проверяем существует ли Jinnee, если нет то создаем.
+Копируем zip и распоковываем его в Jinnee.
+Рекурсивно синхронизируем каталоги

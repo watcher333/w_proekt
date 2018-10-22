@@ -1,0 +1,109 @@
+<!-- P {  text-align: justify; /* Выравнивание по ширине */ } -->
+<p><strong>Исходный данные: </strong></p>
+<table border="1">
+<tbody>
+<tr>
+<td><span style="color: green; font-size:2 x-small;"><strong>OS</strong></span></td>
+<td><span style="color: green; font-size:2 x-small;"><strong>Centos 5.1</strong></span></td>
+</tr>
+<tr>
+<td><span style="color: green; font-size:2 x-small;"><strong>eth0</strong></span></td>
+<td><span style="color: green; font-size:2 x-small;"><strong>192.168.50.175</strong></span></td>
+</tr>
+</tbody>
+</table>
+<p> </p>
+<p><strong>Скачиваем исходники и пакеты: </strong></p>
+<table border="1">
+<tbody>
+<tr>
+<td><a href="http://snort.org/dl/current/snort-2.8.0.2.tar.gz"><span style="color: green; font-size:2 x-small;"><strong>snort-2.8.0.2.tar.gz</strong></span></a></td>
+</tr>
+<tr>
+<td><a href="http://www.snort.org/pub-bin/downloads.cgi/Download/vrt_pr/snortrules-pr-2.4.tar.gz"><span style="color: green; font-size:2 x-small;"><strong>snortrules-pr-2.4.tar.gz</strong></span></a></td>
+</tr>
+<tr>
+<td><a href="http://sourceforge.net/project/showfiles.php?group_id=103348&amp;package_id=128846&amp;release_id=555614"><span style="color: green; font-size:2 x-small;"><strong>base1.3.9.tar.gz</strong></span></a></td>
+</tr>
+<tr>
+<td><a href="http://download.fedora.redhat.com/pub/fedora/linux/extras/6/i386/php-adodb-4.94-1.fc6.noarch.rpm"><span style="color: green; font-size:2 x-small;"><strong>php-adodb-4.94-1.fc6.noarch.rpm</strong></span></a></td>
+</tr>
+</tbody>
+</table>
+<p><br /> <br /></p>
+<p><strong><span style="color: blue; font-size: small;">Устанавливаем snort </span></strong></p>
+<p>Создаем например в катологе root папку snort и записываем все туда наши скаченные файлы:</p>
+<div class="codeheader">/root/snort</div>
+<div class="code">[root@localhost snort]# ls -l<br /> итого 6032<br /> -rw-r--r-- 1 root root  487292 Дек 13 15:01 base-1.3.9.tar.gz<br /> -rw-r--r-- 1 root root  513361 Сен 30 19:42 php-adodb-4.94-1.fc6.noarch.rpm<br /> -rw-r--r-- 1 root root 4340169 Мар 25 07:12 snort-2.8.0.2.tar.gz<br /> -rw-r--r-- 1 root root  789097 Сен 30 22:04 snortrules-pr-2.4.tar.gz<br /> <br /></div>
+<p>Устанвливаем пакет php-adodb-4.94-1.fc6.noarch.rpm:</p>
+<div class="codeheader">/root/snort</div>
+<div class="code">[root@localhost snort]# rpm -ihv php-adodb-4.94-1.fc6.noarch.rpm<br /> предупреждение: php-adodb-4.94-1.fc6.noarch.rpm: Заголовок V3 DSA signature: NOKEY, key ID 1ac70ce6<br /> Подготовка...     ########################################### [100%]<br /> 1:php-adodb              ########################################### [100%]</div>
+<p> </p>
+<p><span style="color: red;"><strong>1.</strong></span>Теперь будем собирать из исходников snort rpm c поддержкой mysql</p>
+<p><span style="color: red;"><strong>1.1</strong></span> Распоковываем архив snort-2.8.0.2.tar.gz</p>
+<div class="codeheader">/root/snort</div>
+<div class="code">[root@localhost snort]# tar -zxf base-1.3.9.tar.gz<br /> [root@localhost snort]# ls | grep snort-2.8.0.2<br /> snort-2.8.0.2<br /> snort-2.8.0.2.tar.gz</div>
+<p> </p>
+<p><span style="color: red;"><strong>1.2 </strong></span> Скопируем из каталога /snort-2.8.0.2/rpm/ файлы в: <br />snort.spec  --------------&gt;/usr/src/redhat/SPECS/ <br />snort.logrotate ----------&gt;/usr/src/redhat/SOURCES/ <br />snort.sysconfig ----------&gt;/usr/src/redhat/SOURCES/ <br />snortd -------------------&gt;/usr/src/redhat/SOURCES/ <br />snort-2.8.0.2.tar.gz -----&gt;/usr/src/redhat/SOURCES/</p>
+<div class="codeheader">/root/snort</div>
+<div class="code">[root@localhost snort]# cd snort-2.8.0.2/rpm/<br /> [root@localhost rpm]# cp snort.spec /usr/src/redhat/SPECS/<br /> [root@localhost rpm]# cp snort.logrotate /usr/src/redhat/SOURCES/<br /> [root@localhost rpm]# cp snort.sysconfig /usr/src/redhat/SOURCES/<br /> [root@localhost rpm]# cp snortd /usr/src/redhat/SOURCES/<br /> [root@localhost rpm]# cp /root/snort/snort-2.8.0.2.tar.gz /usr/src/redhat/SOURCES/snort-2.8.0.2.tar.gz</div>
+<p> </p>
+<p><span style="color: red;"><strong>1.3 </strong></span>Правим фаил snort.spec. Везде где есть --without-mysql правим на --with-mysql  и параметр %define mysql 0 меняем на 1</p>
+<div class="codeheader">/usr/src/redhat/SPECS</div>
+<div class="code">[root@localhost SPECS]# cat snort.spec | grep with-mysql<br /> --with-mysql \<br /> --with-mysql \<br /> --with-mysql \<br /> --with-mysql \<br /> --with-mysql \<br /> [root@localhost SPECS]# cat snort.spec | awk '$1~/%define/ &amp;&amp; $2~/mysql/ &amp;&amp; $3~/1/{print $1,$2,$3}'<br /> %define mysql 1<br /> %{?_with_mysql:%define mysql 1}<br /> %define mysql 1</div>
+<p> </p>
+<p><span style="color: red;"><strong>1.4 </strong></span>Собираем rpm:</p>
+<div class="codeheader">/usr/src/redhat/SPECS</div>
+<div class="code">[root@localhost SPECS]# rpmbuild -ba snort.spec <br /> ошибка: Неудовлетворенные зависимости сборки:<br /> pcre-devel нужен для snort-2.8.0.2-1.i386<br /> mysql-devel нужен для snort-2.8.0.2-1.i386<br /> <br /></div>
+<p>Доставляем нужные пакеты(их можно взять с интернета или с диска Centos5.1) и пробуем снова:</p>
+<div class="codeheader">/usr/src/redhat/SPECS</div>
+<div class="code">[root@localhost SPECS]# rpm -ihv /root/pcre-devel-6.6-1.1.i386.rpm<br /> предупреждение: /root/pcre-devel-6.6-1.1.i386.rpm: Заголовок V3 DSA signature: NOKEY, key ID e8562897<br /> Подготовка...     ########################################### [100%]<br /> 1:pcre-devel             ########################################### [100%]<br /> <br /><br /> [root@localhost SPECS]# rpm -ihv /root/mysql-devel-5.0.22-2.1.0.1.i386.rpm<br /> предупреждение: /root/mysql-devel-5.0.22-2.1.0.1.i386.rpm: Заголовок V3 DSA signature: NOKEY, key ID e8562897<br /> Подготовка...     ########################################### [100%]<br /> 1:mysql-devel            ########################################### [100%]<br /> <br /><br /> [root@localhost SPECS]# rpm -ihv /root/libpcap-devel-0.9.4-11.el5.i386.rpm<br /> предупреждение: /root/libpcap-devel-0.9.4-11.el5.i386.rpm: Заголовок V3 DSA signature: NOKEY, key ID e8562897<br /> Подготовка...     ########################################### [100%]<br /> 1:libpcap-devel          ########################################### [100%]<br /> <br /> <br /> [root@localhost snort]# rpm -ihv php-pdo-5.1.6-15.el5.i386.rpm<br /> предупреждение: php-pdo-5.1.6-15.el5.i386.rpm: Заголовок V3 DSA signature: NOKEY, key ID e8562897<br /> Подготовка...     ########################################### [100%]<br /> 1:php-pdo                ########################################### [100%]<br /> <br /> <br /> [root@localhost snort]# rpm -ihv php-mysql-5.1.6-15.el5.i386.rpm<br /> предупреждение: php-mysql-5.1.6-15.el5.i386.rpm: Заголовок V3 DSA signature: NOKEY, key ID e8562897<br /> Подготовка...     ########################################### [100%]<br /> 1:php-mysql              ########################################### [100%]<br /> <br /> <br /> [root@localhost snort]# rpm -ihv php-odbc-5.1.6-15.el5.i386.rpm<br /> предупреждение: php-odbc-5.1.6-15.el5.i386.rpm: Заголовок V3 DSA signature: NOKEY, key ID e8562897<br /> Подготовка...     ########################################### [100%]<br /> 1:php-odbc               ########################################### [100%]<br /> <br /><br /> [root@localhost snort]# rpm -ihv php-gd-5.1.6-15.el5.i386.rpm<br /> предупреждение: php-gd-5.1.6-15.el5.i386.rpm: Заголовок V3 DSA signature: NOKEY, key ID e8562897<br /> Подготовка...     ########################################### [100%]<br /> 1:php-gd                 ########################################### [100%]   <br /> <br /><br /> [root@localhost snort]# rpm -ihv php-pear-1.4.9-4.noarch.rpm<br /> предупреждение: php-pear-1.4.9-4.noarch.rpm: Заголовок V3 DSA signature: NOKEY, key ID e8562897<br /> Подготовка...     ########################################### [100%]<br /> 1:php-pear               ########################################### [100%]   <br /> <br /><br /> [root@localhost SPECS]# rpmbuild -ba snort.spec <br /> + umask 022<br /> + cd /usr/src/redhat/BUILD<br /> + LANG=C<br /> + export LANG<br /> + unset DISPLAY<br /> + cd /usr/src/redhat/BUILD<br /> + rm -rf snort-2.8.0.2<br /> + /bin/gzip -dc /usr/src/redhat/SOURCES/snort-2.8.0.2.tar.gz<br /> ........................<br /> Записан: /usr/src/redhat/SRPMS/snort-2.8.0.2-1.src.rpm<br /> Записан: /usr/src/redhat/RPMS/i386/snort-2.8.0.2-1.i386.rpm<br /> Записан: /usr/src/redhat/RPMS/i386/snort-mysql-2.8.0.2-1.i386.rpm<br /> Записан: /usr/src/redhat/RPMS/i386/snort-debuginfo-2.8.0.2-1.i386.rpm<br /> Выполняется(%clean): /bin/sh -e /var/tmp/rpm-tmp.79924<br /> + umask 022<br /> + cd /usr/src/redhat/BUILD<br /> + cd snort-2.8.0.2<br /> + /bin/rm -rf /var/tmp/snort-2.8.0.2-1-root-root<br /> + exit 0</div>
+<p> </p>
+<p><span style="color: red;"><strong>1.4 </strong></span>Устанавливаем полученные rpm:</p>
+<div class="codeheader">/usr/src/redhat/SPECS</div>
+<div class="code">[root@localhost i386]# cd /usr/src/redhat/RPMS/i386<br /> [root@localhost i386]# ls -l<br /> итого 5264<br /> -rw-r--r-- 1 root root 1952381 Мар 25 16:38 snort-2.8.0.2-1.i386.rpm<br /> -rw-r--r-- 1 root root 2928154 Мар 25 16:38 snort-debuginfo-2.8.0.2-1.i386.rpm<br /> -rw-r--r-- 1 root root  483076 Мар 25 16:38 snort-mysql-2.8.0.2-1.i386.rpm<br /> <br /><br /> [root@localhost i386]# rpm -ihv *.rpm<br /> Подготовка...     ########################################### [100%]<br /> 1:snort                  ########################################### [ 33%]<br /> 2:snort-debuginfo        ########################################### [ 67%]<br /> 3:snort-mysql            ########################################### [100%]<br /> <br /></div>
+<p><strong><span style="color: blue; font-size: small;">Настраиваем mysql и snort </span></strong></p>
+<p><span style="color: red;"><strong>1 </strong></span> Меняем пароль root mysql на 123456:</p>
+<div class="codeheader">/usr/src/redhat/SPECS</div>
+<div class="code">[root@localhost ~]# mysql -u root<br /> Welcome to the MySQL monitor.  Commands end with ; or \g.<br /> Your MySQL connection id is 8 to server version: 5.0.22<br /> <br /><br /> Type 'help;' or '\h' for help. Type '\c' to clear the buffer.<br /> <br /><br /> mysql&gt; use mysql;<br /> Reading table information for completion of table and column names<br /> You can turn off this feature to get a quicker startup with -A<br /> <br /><br /> Database changed<br /> mysql&gt; UPDATE user SET PASSWORD=NULL WHERE USER='root';<br /> Query OK, 0 rows affected, 2 warnings (0.04 sec)<br /> Rows matched: 2  Changed: 0  Warnings: 2<br /> <br /><br /> mysql&gt; FLUSH PRIVILEGES;<br /> Query OK, 0 rows affected (0.00 sec)<br /> <br /><br /> mysql&gt; exit<br /> Bye<br /> [root@localhost ~]# mysql -u root;<br /> Welcome to the MySQL monitor.  Commands end with ; or \g.<br /> Your MySQL connection id is 9 to server version: 5.0.22<br /> <br /><br /> Type 'help;' or '\h' for help. Type '\c' to clear the buffer.<br /> <br /><br /> mysql&gt; use mysql;<br /> Reading table information for completion of table and column names<br /> You can turn off this feature to get a quicker startup with -A<br /> <br /><br /> Database changed<br /> mysql&gt; UPDATE user SET Password=PASSWORD('123456') WHERE User='root';<br /> Query OK, 2 rows affected (0.01 sec)<br /> Rows matched: 2  Changed: 2  Warnings: 0<br /> <br /><br /> mysql&gt; quit<br /> Bye<br /> <br /><br /> [root@localhost ~]# service mysqld restart<br /> Останавливается MySQL:                                     [  OK  ]<br /> Запускается MySQL:                                         [  OK  ]<br /> <br /></div>
+<p><span style="color: red;"><strong>1.1 </strong></span> Настраиваем mysql:<br /> <br />создаем базу snort<br /> <br />импортируем туда таблицы из файла create_mysql</p>
+<div class="codeheader">/usr/src/redhat/SPECS</div>
+<div class="code">[root@localhost i386]# find /root/snort -name "create_mysql"<br /> /root/snort/snort-2.8.0.2/schemas/create_mysql<br /> <br /><br /> [root@localhost i386]# mysql -u root -p123456 -Bse "create database snort;"<br /> [root@localhost i386]# mysql -u root -p123456 snort &lt; /root/snort/snort-2.8.0.2/schemas/create_mysql<br /> [root@localhost ~]# mysql -u root -p123456 -Bse "use snort;show tables;"<br /> data<br /> detail<br /> encoding<br /> event<br /> icmphdr<br /> iphdr<br /> opt<br /> reference<br /> reference_system<br /> schema<br /> sensor<br /> sig_class<br /> sig_reference<br /> signature<br /> tcphdr<br /> udphdr<br /> <br /></div>
+<p><span style="color: red;"><strong>2 </strong></span> Настраиваем snort:<br /> <br /> распоковываем snortrules-pr-2.4.tar.gz<br /> <br /> полученные катологи копируем в /etc/snort</p>
+<div class="codeheader">/usr/src/redhat/SPECS</div>
+<div class="code">[root@localhost snort]# tar -zxf snortrules-pr-2.4.tar.gz<br /> <br /> [root@localhost snort]# cp -r doc/ /etc/snort/<br /> [root@localhost snort]# cp -r rules/ /etc/snort/</div>
+<p><br /> Перейдите в каталог /etc/snort и отредактируйте файл snort.conf добавив/изменив следующие строки.<br /> <br />output database: log, mysql, user=root password=123456 dbname=snort host=localhost<br /> <br />var RULE_PATH /etc/snort/rules<br /> <br />Перейдите в каталог /etc/snort/rules и отредактируйте фаил web-misc.rules закоментируйте в нем строки 97, 98, 452</p>
+<div class="codeheader">/etc/snort/rules</div>
+<div class="code">#alert tcp $EXTERNAL_NET any -&gt; $HTTP_SERVERS $HTTP_PORTS (msg:"WEB-MISC ///cgi-bin access"; flow:to_server,established;<br /> #alert tcp $EXTERNAL_NET any -&gt; $HTTP_SERVERS $HTTP_PORTS (msg:"WEB-MISC /cgi-bin/// access"; flow:to_server,established;<br /> #alert tcp $EXTERNAL_NET any -&gt; $HOME_NET 8090 (msg:"WEB-MISC TrackerCam ComGetLogFile.php3 log information disclosure";</div>
+<p> </p>
+<p><span style="color: red;"><strong>3 </strong></span> Запускаем snort:</p>
+<div class="codeheader">/etc/snort/</div>
+<div class="code">[root@localhost snort]# /usr/sbin/snort -D -i eth0 -u root -g root -c /etc/snort/snort.conf <br /> <br />..........................................<br /> Initializing Network Interface eth0<br /> Decoding Ethernet on interface eth0<br /> database: compiled support for ( mysql )<br /> database: configured to use mysql<br /> database:          user = root<br /> database: password is set<br /> database: database name = snort<br /> database:          host = localhost<br /> database:   sensor name = 192.168.50.175<br /> database:     sensor id = 1<br /> database: schema version = 107<br /> database: using the "log" facility<br /> <br /><br /> [ Port Based Pattern Matching Memory ]<br /> +-[AC-BNFA Search Info Summary]------------------------------<br /> | Instances        : 187<br /> | Patterns         : 11444<br /> | Pattern Chars    : 97540<br /> | Num States       : 52756<br /> | Num Match States : 7560<br /> | Memory           :   1.40Mbytes<br /> |   Patterns       :   0.31M<br /> |   Match Lists    :   0.30M<br /> |   Transitions    :   0.77M<br /> +-------------------------------------------------<br /> <br />.........................................</div>
+<p><span style="color: red;"><strong>4 </strong></span> Проверяем общение с mysql: как видно данные в таблицу попадают</p>
+<div class="codeheader">/etc/snort/</div>
+<p> </p>
+<div class="code">[root@localhost snort]# mysql -u root -p123456<br /> Welcome to the MySQL monitor.  Commands end with ; or \g.<br /> Your MySQL connection id is 8 to server version: 5.0.22<br /> <br /><br /> Type 'help;' or '\h' for help. Type '\c' to clear the buffer.<br /> <br /><br /> mysql&gt; use snort;<br /> Reading table information for completion of table and column names<br /> You can turn off this feature to get a quicker startup with -A<br /> <br /><br /> Database changed<br /> mysql&gt; select * from event;<br /> +-----+-----+-----------+---------------------+<br /> | sid | cid | signature | timestamp           |<br /> +-----+-----+-----------+---------------------+<br /> |   1 |   1 |         1 | 2008-03-25 17:30:10 |<br /> |   1 |   2 |         1 | 2008-03-25 17:30:10 |<br /> |   1 |   3 |         1 | 2008-03-25 17:30:11 |<br /> |   1 |   4 |         1 | 2008-03-25 17:30:11 |<br /> |   1 |   5 |         1 | 2008-03-25 17:30:11 |<br /> |   1 |   6 |         1 | 2008-03-25 17:30:11 |<br /> |   1 |   7 |         1 | 2008-03-25 17:30:11 |<br /> |   1 |   8 |         1 | 2008-03-25 17:30:11 |<br /> |   1 |   9 |         1 | 2008-03-25 17:30:12 |<br /> |   1 |  10 |         1 | 2008-03-25 17:30:12 |<br /> |   1 |  11 |         1 | 2008-03-25 17:30:12 |<br /> |   1 |  12 |         1 | 2008-03-25 17:30:12 |<br /> |   1 |  13 |         1 | 2008-03-25 17:30:12 |<br /> |   1 |  14 |         1 | 2008-03-25 17:30:12 |<br /> |   1 |  15 |         1 | 2008-03-25 17:30:13 |<br /> |   1 |  16 |         1 | 2008-03-25 17:30:13 |<br /> |   1 |  17 |         1 | 2008-03-25 17:30:13 |<br /> |   1 |  18 |         1 | 2008-03-25 17:30:13 |<br /> |   1 |  19 |         1 | 2008-03-25 17:31:33 |<br /> |   1 |  20 |         1 | 2008-03-25 17:31:33 |<br /> |   1 |  21 |         1 | 2008-03-25 17:34:46 |<br /> |   1 |  22 |         1 | 2008-03-25 17:34:46 |<br /> +-----+-----+-----------+---------------------+<br /> 22 rows in set (0.00 sec)<br /> <br /><br /> mysql&gt;<br /> <br /></div>
+<p><strong><span style="color: blue; font-size: small;">Настраиваем Base </span></strong><br /><br /></p>
+<p><span style="color: red;"><strong>1 </strong></span> Подготавливаем админку<br /> <br /> распоковываем base-1.3.9.tar.gz<br /> <br /> полученный католог копируем в /var/www/html</p>
+<div class="codeheader">/root/snort</div>
+<div class="code">[root@localhost snort]# tar -zxf base-1.3.9.tar.gz<br /> [root@localhost snort]# cp -r base-1.3.9 /var/www/html/<br /> [root@localhost snort]# cd /var/www/html/<br /> [root@localhost html]# mv base-1.3.9/ base<br /> [root@localhost html]# chmod -R 770 base/<br /> [root@localhost html]# chown -R root:apache base/<br /> <br /></div>
+<p><span style="color: red;"><strong>2 </strong></span> Подготавливаем Apache<br /> <br /> создаем фаил snort.conf в каталоге /etc/httpd/conf.d/<br /> <br />запускаем httpd</p>
+<div class="codeheader">/etc/httpd/conf.d/</div>
+<p> </p>
+<div class="code">[root@localhost conf.d]# cat snort.conf<br /> Alias /snort /var/www/html/base<br /> &lt;Directory /var/www/html/base&gt;<br /> &lt;/Directory&gt;<br /> <br /><br /> [root@localhost conf.d]# service httpd start<br /> Запускается httpd:                                         [  OK  ]<br /> <br /></div>
+<p><span style="color: red;"><strong>3 </strong></span> Связываем base с  mysql<br /> <br /> Пишем в браузере http://192.168.50.175/snort и Нажимаем Continue</p>
+<p align="left"><img src="images/stories/pic/snort/1.png" border="0" /></p>
+<p><span style="color: red;"><strong>3.1 </strong></span> <br /> <br /> Выбираем язык ------------------------&gt;  russian<br /> <br /> Пишем путь к adodb у меня он такой  --&gt;  /usr/share/php/adodb<br /> <br /> Жмем отправить запрос</p>
+<p align="left"><img src="images/stories/pic/snort/2.png" border="0" /></p>
+<p><span style="color: red;"><strong>3.2 </strong></span> <br /> <br />тип БД ------------------&gt;MySQL:<br /> <br />Database name -----------&gt; snort<br /> <br />Database host -----------&gt; localhost<br /> <br />Database port -----------&gt; 3306<br /> <br />Database User Name ------&gt; root<br /> <br />Database User Password --&gt; 123456 <br /> <br /> Жмем отправить запрос</p>
+<p align="left"><img src="images/stories/pic/snort/3.png" border="0" /></p>
+<p> </p>
+<p><span style="color: red;"><strong>3.3 </strong></span> <br /> <br /> Если нужен пароль ставим галочку в "Use Authentication System" и задаем его<br /> <br /> Жмем отправить запрос</p>
+<p align="left"><img src="images/stories/pic/snort/4.png" border="0" /></p>
+<p><span style="color: red;"><strong>3.4 </strong></span> <br /> <br /> Жмем Create BASE AG</p>
+<p align="left"><img src="images/stories/pic/snort/5.png" border="0" /></p>
+<p><span style="color: red;"><strong>3.5 </strong></span> <br /> <br /> Ну и все переходим на step 5</p>
+<p> </p>
+<p><span style="color: red;"><strong>3.6 </strong></span> <br /> <br /> Ну и все</p>
+<p align="left"><img src="images/stories/pic/snort/7.png" border="0" /></p>
+<p><br /> <br /> <br /></p>

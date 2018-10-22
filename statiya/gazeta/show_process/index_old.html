@@ -1,0 +1,68 @@
+<?php
+$link = mysql_connect("localhost", "root", "") or die("no connect");
+mysql_select_db("counter", $link) or die("no vibor");
+$day=date('d');
+$month=date('m');
+$year=date('y');
+$count2=0;
+$date="20".$year."-".$month."-".$day;
+$ip=getenv("REMOTE_ADDR")." ".getenv("HTTP_X_FORWARDED_FOR");
+$query="select * from counter where ip='$ip' && other='proces'";
+$result=mysql_query($query,$link);
+while ($count=mysql_fetch_row($result))
+  {
+    if($ip==$count[2] && $count[4]=="proces")
+    {
+    $count1=$count[3]+1;
+    $query="update counter set input='$count1',date='$date' where ip='$ip' && other='proces'";
+    $result=mysql_query($query,$link);
+    $count2++;
+    }
+
+  }
+
+
+
+if($count2==0)
+{
+ $query="INSERT INTO counter (date,ip,input,other) VALUES ('$date','$ip','1','proces')";
+ $result = mysql_query($query,$link);
+ mysql_close($link);
+}
+?>
+
+
+
+<HTML>
+<HEAD><TITLE> Show_process </TITLE>
+<meta http-equiv="content-type" content="text/html; charset=windows-1251">
+</HEAD>
+<link rel="stylesheet" type="text/css" href="style.css">
+<style type="text/css">
+P {
+ text-align: justify; /* Выравнивание по ширине */
+}
+</style>
+<BODY BGCOLOR="#DDE1C2" TEXT="#002040">
+<p><h3 align=center> <font color=blue>Show_process - следим за процессами в сети
+</font></h3></p>
+<br>
+<br>
+<br>
+<br>
+<br>
+<ul>
+<li><b>Следит за процессами в сети</b></li><br>
+<li><b>Убивает процессы в сети</b></li><br>
+<li><b>Ведет логи<b></li><br>
+</ul>
+<br>
+<p><font color=green><a href=show_process.zip> Download Show_process</a></font>
+<p><font color=green><a href=documentaciya.pdf> Documentaciya</a></font>
+<br>
+<br>
+<br>
+<p><h5 align=right> Senkevich V.</h5></p></BODY>
+</HTML>
+
+

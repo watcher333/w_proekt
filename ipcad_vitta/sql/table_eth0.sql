@@ -1,0 +1,1 @@
+create table eth0( id int(11) NOT NULL AUTO_increment,date DATE,ip VARCHAR(90) not null,sendmail double(90,2) not null,squid double(90,2) not null,nat double(90,2) not null, primary key(id));

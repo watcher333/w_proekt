@@ -1,0 +1,6 @@
+C:\proekt\reg_program\reg_program\bin\Debug\reg_program.exe.config
+C:\proekt\reg_program\reg_program\obj\Debug\reg_program.csprojResolveAssemblyReference.cache
+C:\proekt\reg_program\reg_program\bin\Debug\reg_program.exe
+C:\proekt\reg_program\reg_program\bin\Debug\reg_program.pdb
+C:\proekt\reg_program\reg_program\obj\Debug\reg_program.exe
+C:\proekt\reg_program\reg_program\obj\Debug\reg_program.pdb

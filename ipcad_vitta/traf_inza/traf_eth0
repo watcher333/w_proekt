@@ -1,0 +1,4 @@
+for i in $(cat /var/www/html/traf_inza/eth0); do
+      echo $i
+/usr/bin/rsh localhost show ip accounting | grep -w $i |awk '{{if($1=="192.168.50.3" && $5=="110"){s+=$4}} {if($1=="192.168.50.3" && $5=="3128"){s1+=$4}}  {if($1!~/192.168./ && $2!~/(192.168.50.[3|255])$)/ && $1!~/80.66./){s2+=$4}}}  END {printf "%9.4f\n %9.4f\n %9.4f\n ",((s/1024)/1024),((s1/1024)/1024),((s2/1024)/1024)}'
+done

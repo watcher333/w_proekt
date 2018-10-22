@@ -1,0 +1,6 @@
+C:\proekt\truncate\truncate\obj\Debug\truncate.csprojResolveAssemblyReference.cache
+C:\proekt\truncate\truncate\bin\Debug\truncate.exe.config
+C:\proekt\truncate\truncate\bin\Debug\truncate.exe
+C:\proekt\truncate\truncate\bin\Debug\truncate.pdb
+C:\proekt\truncate\truncate\obj\Debug\truncate.exe
+C:\proekt\truncate\truncate\obj\Debug\truncate.pdb

@@ -1,0 +1,7 @@
+D:\proekt\restore_base\restore_base\bin\Debug\restore_base.exe
+D:\proekt\restore_base\restore_base\bin\Debug\restore_base.pdb
+D:\proekt\restore_base\restore_base\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\proekt\restore_base\restore_base\obj\x86\Debug\restore_base.exe
+D:\proekt\restore_base\restore_base\obj\x86\Debug\restore_base.pdb
+C:\proekt\restore_base\restore_base\obj\x86\Debug\restore_base.exe
+C:\proekt\restore_base\restore_base\obj\x86\Debug\restore_base.pdb

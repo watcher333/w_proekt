@@ -1,0 +1,481 @@
+%PDF-1.3
+13 0 obj
+<< /Type /Catalog
+/Outlines 12 0 R
+/Pages 7 0 R
+>>
+endobj
+7 0 obj
+<< /Type /Pages
+/Kids [
+8 0 R
+10 0 R ]
+/Count 2
+>>
+endobj
+12 0 obj
+<< /Type /Outlines
+/Count 0
+>>
+endobj
+8 0 obj
+<< /Type /Page
+/Parent 7 0 R
+/MediaBox [0 0 595 841 ]
+/Contents 9 0 R
+/Resources 6 0 R
+/Annots [
+14 0 R]
+>>
+endobj
+9 0 obj
+<< /Length 3217>>
+stream
+ 1 w 84.85 707.85 m 351.65 707.85 l S 84.85 606.85 m 117.65 606.85 l S 1.17 w 117.65 606.05 m 132.45 606.05 l S 1 w 84.85 466.7 m 120.2 466.7 l S 1.17 w 120.2 465.9 m 190.95 465.9 l S 1 w 190.95 466.7 m 197.35 466.7 l S 1.17 w 84.85 205.55 m 235.3 205.55 l S 154.3 159.9 m 225.65 159.9 l S 1 w 225.65 160.7 m 232.05 160.7 l S 0 0 1 RG 187.7 132.5 m 360 132.5 l S
+BT
+
+ 261 764.45 Td /TimesNewRoman 20 Tf 0 0 0 rg(Show_process)Tj
+ -176.15 -38.3 Td /TimesNewRoman 12 Tf
+ 0.3 w 2 Tr 0 0 0 RG 1 0 0.27 1 84.85 712.65 Tm(¬ архиве show_process.zip находитьс€ три файла:)Tj 266.8 0 Td
+ 0 Tr /TimesNewRoman 14 Tf 1 0 0 1 120.85 684.95 Tm(process.conf)Tj 70.1 0 Td /TimesNewRoman 12 Tf(  ----------------- \(фаил конфигурации\))Tj
+ -70.1 -16.1 Td /TimesNewRoman 14 Tf(in)Tj 10.3 0 Td /TimesNewRoman 12 Tf(  ------------------------------- \(сюда пишутс€ названи€ процессов \))Tj
+ -10.3 -16.05 Td /TimesNewRoman 14 Tf(show_process.exe)Tj 101.6 0 Td /TimesNewRoman 12 Tf(  ---------- исполн€емый фаил)Tj
+ -137.6 -25.6 Td /TimesNewRoman 10 Tf
+ 2 Tr /TimesNewRoman 12 Tf 1 0 0.27 1 84.85 611.65 Tm(‘айл )Tj 32.8 0 Td /TimesNewRoman 14 Tf(in )Tj 14.8 0 Td
+ 0 Tr /TimesNewRoman 12 Tf 1 0 0 1 84.85 583.45 Tm(¬ этот фаил мы будем писать название процессов которые хотим отследить, например:)Tj
+ 0 -27 Td(Zuma.exe)Tj
+ 0 -14.15 Td(putty.exe)Tj
+ 0 -13.5 Td(vmnat.exe)Tj
+ 0 -14.15 Td(puttytel.exe)Tj
+ 0 -27.65 Td
+ 2 Tr 1 0 0.27 1 84.85 471.5 Tm(‘аил  )Tj 35.35 0 Td /TimesNewRoman 14 Tf(process.conf)Tj 70.75 0 Td /TimesNewRoman 12 Tf(  )Tj 6.4 0 Td
+ 0 Tr 1 0 0 1 84.85 443.3 Tm(Ёто фаил конфигурации, в котором можно измен€ть всего четыре параметра:)Tj
+ 0 -27.65 Td(path_out=   здесь указываем полный путь к файлу куда будут писатьс€ логи)Tj
+ 0 -15.5 Td(path_in=     здесь указываем полный путь к файлу )Tj 256.5 0 Td /TimesNewRoman 14 Tf(in)Tj 10.3 0 Td /TimesNewRoman 12 Tf /TimesNewRoman 14 Tf
+ -266.8 -14.1 Td /TimesNewRoman 12 Tf(time=          здесь указываем врем€ в секундах, через которое программа будет провер€ть , )Tj
+ 0 -14.1 Td(если данный процесс в системе)Tj
+ 0 -13.5 Td(kill=            здесь указываем либо У0Ф ничего не делать с процессом , либо У1Ф Ц убивать )Tj
+ 0 -16.15 Td(все процессы из списка)Tj 120.2 0 Td /TimesNewRoman 14 Tf( in)Tj
+ -120.2 -30.15 Td /TimesNewRoman 12 Tf(Ќапример:)Tj
+ 0 -13.5 Td(path_out=\\\\192.168.50.4\\process\\out)Tj
+ 0 -14.15 Td(path_in=\\\\192.168.50.4\\process\\in)Tj
+ 0 -13.5 Td(time=15)Tj
+ 0 -14.15 Td(kill=1)Tj
+ 0.35 w 2 Tr /TimesNewRoman 14 Tf 1 0 0.27 1 84.85 227.85 Tm
+ 4.47 -16.7 Td(‘аил  show_process.exe  )Tj 150.45 0 Td
+ 0 Tr /TimesNewRoman 12 Tf 1 0 0 1 84.85 181 Tm(»сполн€емый фаил , запускатьс€ он должен с параметром У-cФ , после которого указываем )Tj
+ 0 -15.5 Td(путь к файлу )Tj 2 Tr /TimesNewRoman 14 Tf 1 0 0.27 1 154.3 165.5 Tm(process.conf)Tj 71.35 0 Td /TimesNewRoman 12 Tf(  )Tj 0 Tr 1 0 0 1 232.05 165.5 Tm(, например)Tj
+ -147.2 -28.2 Td(show_process.exe -c )Tj 102.85 0 Td 0 0 1 rg(\\\\192.168.50.4\\process\\process.conf)Tj 172.3 0 Td 0 0 0 rg 0 0 1 rg
+ -275.15 -27.65 Td 0 0 0 rg(ѕример логов:)Tj
+ 0 -27 Td(30.2.2008 15:57:0 192.168.50.8 putty.exe )Tj
+ 0 -14.15 Td(30.2.2008 15:57:15 192.168.50.8 putty.exe )Tj
+ET
+
+endstream
+endobj
+14 0 obj
+<</Type /Annot
+/Subtype /Link
+/Rect [188 133 360 146]
+/Border [0 0 0]
+/A << /Type /Action 
+/S /URI
+/URI (\\192.168.50.4\process\process.conf) >>
+>>
+endobj
+10 0 obj
+<< /Type /Page
+/Parent 7 0 R
+/MediaBox [0 0 595 841 ]
+/Contents 11 0 R
+/Resources 6 0 R
+>>
+endobj
+11 0 obj
+<< /Length 617>>
+stream
+
+BT
+
+ 84.85 772.45 Td /TimesNewRoman 12 Tf 0 0 0 rg(30.2.2008 15:57:30 192.168.50.8 putty.exe )Tj
+ 0 -14.15 Td(30.2.2008 15:57:45 192.168.50.8 putty.exe )Tj
+ 0 -13.5 Td(30.2.2008 15:58:0 192.168.50.8 putty.exe )Tj
+ 0 -14.15 Td(30.2.2008 15:58:15 192.168.50.8 putty.exe )Tj
+ 0 -13.5 Td(30.2.2008 15:58:30 192.168.50.8 putty.exe )Tj
+ 0 -14.15 Td(30.2.2008 15:58:45 192.168.50.8 putty.exe)Tj
+ 0 -27 Td(ѕример использовани€ программы , если у вас в сети используетс€ доменный сервер, )Tj
+ 0 -14.15 Td(может сделать чтоб программа грузилась из сети на всех компьютерахЕЕЕ..)Tj
+ 0 -27.65 Td
+ 0 -27.65 Td
+ET
+
+endstream
+endobj
+1 0 obj
+<< /Type /Font
+/Subtype /TrueType
+/BaseFont /TimesNewRoman
+/FirstChar 30
+/LastChar 255
+/Widths 2 0 R
+/FontDescriptor 3 0 R
+/Encoding 4 0 R
+/ToUnicode 5 0 R>>
+endobj
+3 0 obj
+<< /Type /FontDescriptor
+/Ascent 891
+/CapHeight 500
+/Descent -216
+/Flags 34
+/FontBBox [-568 -307 2000 1007]
+/FontName /TimesNewRoman
+/ItalicAngle 0
+/StemV 0
+>>
+endobj
+2 0 obj
+[ 778 778 250 333 408 500 500 833 778 180 333 333 500 564 250 333
+ 250 278 500 500 500 500 500 500 500 500 500 500 278 278 564 564
+ 564 444 921 722 667 667 722 611 556 722 722 333 389 722 611 889
+ 722 722 556 722 667 556 611 722 722 944 722 722 611 333 278 333
+ 469 500 333 444 500 444 500 444 333 500 500 278 278 500 278 778
+ 500 500 500 500 333 389 278 500 500 722 500 500 444 480 200 480
+ 541 778 752 578 333 410 444 1000 500 500 500 1000 872 333 872 667
+ 741 722 483 333 333 444 444 350 500 1000 778 980 727 333 723 486
+ 500 535 250 708 500 389 500 450 200 500 611 760 660 500 564 333
+ 760 333 400 549 333 278 351 576 453 250 444 954 429 500 278 556
+ 389 278 722 574 667 578 682 611 896 501 722 722 667 678 889 722
+ 722 722 556 667 611 708 790 722 722 650 1009 1009 706 872 574 660
+ 1028 667 444 509 472 410 509 444 691 395 535 535 486 499 633 535
+ 500 535 500 444 437 500 648 500 535 503 770 770 517 672 456 429
+ 747 460]
+endobj
+4 0 obj
+<</Type /Encoding
+/BaseEncoding /WinAnsiEncoding
+/Differences [128 /afii10051/afii10052/quotesinglbase/afii10100/quotedblbase/ellipsis/dagger/daggerdbl/Euro/perthousand/afii10058/guilsinglleft/afii10059/afii10061/afii10060/afii10145
+/afii10099/quoteleft/quoteright/quotedblleft/quotedblright/bullet/endash/emdash//trademark/afii10106/guilsinglright/afii10107/afii10109/afii10108/afii10193
+/nonbreakingspace/afii10062/afii10110/afii10057/currency/afii10050/brokenbar/section/afii10023/copyright/afii10053/guillemotleft/logicalnot/softhyphen/registered/afii10056
+/degree/plusminus/afii10055/afii10103/afii10098/mu1/paragraph/periodcentered/afii10071/afii61352/afii10101/guillemotright/afii10105/afii10054/afii10102/afii10104
+/afii10017/afii10018/afii10019/afii10020/afii10021/afii10022/afii10024/afii10025/afii10026/afii10027/afii10028/afii10029/afii10030/afii10031/afii10032/afii10033
+/afii10034/afii10035/afii10036/afii10037/afii10038/afii10039/afii10040/afii10041/afii10042/afii10043/afii10044/afii10045/afii10046/afii10047/afii10048/afii10049
+/afii10065/afii10066/afii10067/afii10068/afii10069/afii10070/afii10072/afii10073/afii10074/afii10075/afii10076/afii10077/afii10078/afii10079/afii10080/afii10081
+/afii10082/afii10083/afii10084/afii10085/afii10086/afii10087/afii10088/afii10089/afii10090/afii10091/afii10092/afii10093/afii10094/afii10095/afii10096/afii10097
+]>>
+endobj
+5 0 obj
+<</Length 3723>>
+stream
+/CIDInit /ProcSet findresource begin
+12 dict begin
+begincmap
+/CIDSystemInfo
+<</Registry (Adobe)
+/Ordering (UCS)
+/Supplement 0
+>> def
+/CMapName /Adobe-Identity-UCS def
+/CMapType 2 def
+1 begincodespacerange
+<00> <FF>
+endcodespacerange
+100 beginbfchar
+<00> <0000>
+<01> <0001>
+<02> <0002>
+<03> <0003>
+<04> <0004>
+<05> <0005>
+<06> <0006>
+<07> <0007>
+<08> <0008>
+<09> <0009>
+<0A> <000A>
+<0B> <000B>
+<0C> <000C>
+<0D> <000D>
+<0E> <000E>
+<0F> <000F>
+<10> <0010>
+<11> <0011>
+<12> <0012>
+<13> <0013>
+<14> <0014>
+<15> <0015>
+<16> <0016>
+<17> <0017>
+<18> <0018>
+<19> <0019>
+<1A> <001A>
+<1B> <001B>
+<1C> <001C>
+<1D> <001D>
+<1E> <001E>
+<1F> <001F>
+<20> <0020>
+<21> <0021>
+<22> <0022>
+<23> <0023>
+<24> <0024>
+<25> <0025>
+<26> <0026>
+<27> <0027>
+<28> <0028>
+<29> <0029>
+<2A> <002A>
+<2B> <002B>
+<2C> <002C>
+<2D> <002D>
+<2E> <002E>
+<2F> <002F>
+<30> <0030>
+<31> <0031>
+<32> <0032>
+<33> <0033>
+<34> <0034>
+<35> <0035>
+<36> <0036>
+<37> <0037>
+<38> <0038>
+<39> <0039>
+<3A> <003A>
+<3B> <003B>
+<3C> <003C>
+<3D> <003D>
+<3E> <003E>
+<3F> <003F>
+<40> <0040>
+<41> <0041>
+<42> <0042>
+<43> <0043>
+<44> <0044>
+<45> <0045>
+<46> <0046>
+<47> <0047>
+<48> <0048>
+<49> <0049>
+<4A> <004A>
+<4B> <004B>
+<4C> <004C>
+<4D> <004D>
+<4E> <004E>
+<4F> <004F>
+<50> <0050>
+<51> <0051>
+<52> <0052>
+<53> <0053>
+<54> <0054>
+<55> <0055>
+<56> <0056>
+<57> <0057>
+<58> <0058>
+<59> <0059>
+<5A> <005A>
+<5B> <005B>
+<5C> <005C>
+<5D> <005D>
+<5E> <005E>
+<5F> <005F>
+<60> <0060>
+<61> <0061>
+<62> <0062>
+<63> <0063>
+endbfchar
+100 beginbfchar
+<64> <0064>
+<65> <0065>
+<66> <0066>
+<67> <0067>
+<68> <0068>
+<69> <0069>
+<6A> <006A>
+<6B> <006B>
+<6C> <006C>
+<6D> <006D>
+<6E> <006E>
+<6F> <006F>
+<70> <0070>
+<71> <0071>
+<72> <0072>
+<73> <0073>
+<74> <0074>
+<75> <0075>
+<76> <0076>
+<77> <0077>
+<78> <0078>
+<79> <0079>
+<7A> <007A>
+<7B> <007B>
+<7C> <007C>
+<7D> <007D>
+<7E> <007E>
+<7F> <007F>
+<80> <0402>
+<81> <0403>
+<82> <201A>
+<83> <0453>
+<84> <201E>
+<85> <2026>
+<86> <2020>
+<87> <2021>
+<88> <20AC>
+<89> <2030>
+<8A> <0409>
+<8B> <2039>
+<8C> <040A>
+<8D> <040C>
+<8E> <040B>
+<8F> <040F>
+<90> <0452>
+<91> <2018>
+<92> <2019>
+<93> <201C>
+<94> <201D>
+<95> <2022>
+<96> <2013>
+<97> <2014>
+<98> <0098>
+<99> <2122>
+<9A> <0459>
+<9B> <203A>
+<9C> <045A>
+<9D> <045C>
+<9E> <045B>
+<9F> <045F>
+<A0> <00A0>
+<A1> <040E>
+<A2> <045E>
+<A3> <0408>
+<A4> <00A4>
+<A5> <0490>
+<A6> <00A6>
+<A7> <00A7>
+<A8> <0401>
+<A9> <00A9>
+<AA> <0404>
+<AB> <00AB>
+<AC> <00AC>
+<AD> <00AD>
+<AE> <00AE>
+<AF> <0407>
+<B0> <00B0>
+<B1> <00B1>
+<B2> <0406>
+<B3> <0456>
+<B4> <0491>
+<B5> <00B5>
+<B6> <00B6>
+<B7> <00B7>
+<B8> <0451>
+<B9> <2116>
+<BA> <0454>
+<BB> <00BB>
+<BC> <0458>
+<BD> <0405>
+<BE> <0455>
+<BF> <0457>
+<C0> <0410>
+<C1> <0411>
+<C2> <0412>
+<C3> <0413>
+<C4> <0414>
+<C5> <0415>
+<C6> <0416>
+<C7> <0417>
+endbfchar
+56 beginbfchar
+<C8> <0418>
+<C9> <0419>
+<CA> <041A>
+<CB> <041B>
+<CC> <041C>
+<CD> <041D>
+<CE> <041E>
+<CF> <041F>
+<D0> <0420>
+<D1> <0421>
+<D2> <0422>
+<D3> <0423>
+<D4> <0424>
+<D5> <0425>
+<D6> <0426>
+<D7> <0427>
+<D8> <0428>
+<D9> <0429>
+<DA> <042A>
+<DB> <042B>
+<DC> <042C>
+<DD> <042D>
+<DE> <042E>
+<DF> <042F>
+<E0> <0430>
+<E1> <0431>
+<E2> <0432>
+<E3> <0433>
+<E4> <0434>
+<E5> <0435>
+<E6> <0436>
+<E7> <0437>
+<E8> <0438>
+<E9> <0439>
+<EA> <043A>
+<EB> <043B>
+<EC> <043C>
+<ED> <043D>
+<EE> <043E>
+<EF> <043F>
+<F0> <0440>
+<F1> <0441>
+<F2> <0442>
+<F3> <0443>
+<F4> <0444>
+<F5> <0445>
+<F6> <0446>
+<F7> <0447>
+<F8> <0448>
+<F9> <0449>
+<FA> <044A>
+<FB> <044B>
+<FC> <044C>
+<FD> <044D>
+<FE> <044E>
+<FF> <044F>
+endbfchar
+endcmap
+CMapName currentdict /CMap defineresource pop
+end
+end
+endstream
+endobj
+6 0 obj
+<< /ProcSet [ /PDF /Text /ImageB ]
+/Font <<
+/TimesNewRoman 1 0 R
+>>
+>>
+endobj
+xref
+0 15
+0000000000 65535 f
+0000004575 00000 n
+0000004946 00000 n
+0000004759 00000 n
+0000005905 00000 n
+0000007304 00000 n
+0000011081 00000 n
+0000000083 00000 n
+0000000209 00000 n
+0000000342 00000 n
+0000003788 00000 n
+0000003903 00000 n
+0000000157 00000 n
+0000000010 00000 n
+0000003614 00000 n
+trailer
+<< /Size 15
+/Root 13 0 R
+>>
+startxref
+11174
+%%EOF

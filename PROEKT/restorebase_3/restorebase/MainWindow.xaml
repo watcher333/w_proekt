@@ -1,0 +1,22 @@
+﻿<Window x:Class="restorebase.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RestoreBase" Height="350" Width="525" Background="White">
+    <Grid Background="#00000000">
+        <Button Content="Пуск" Height="23" HorizontalAlignment="Left" Margin="28,244,0,0" Name="start_btrn" VerticalAlignment="Top" Width="55" BorderBrush="#FF8D0000" Click="start" />
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="115,21,0,0" Name="srv_combo" VerticalAlignment="Top" Width="120" SelectionChanged="select_srv_combo" />
+        <Label Content="Сервер" Height="23" HorizontalAlignment="Left" Margin="12,21,0,0" Name="label1" VerticalAlignment="Top" Width="84" Foreground="Blue" />
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="115,69,0,0" Name="to_combo" VerticalAlignment="Top" Width="120" />
+        <Label Height="23" HorizontalAlignment="Left" Margin="12,69,0,0" Name="label2" VerticalAlignment="Top" Width="84" Content="В какую базу" Foreground="Blue" />
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="115,124,0,0" Name="from_combo" VerticalAlignment="Top" Width="120" SelectionChanged="select_from_combo" />
+        <Label Content="Из какой базы" Height="23" HorizontalAlignment="Left" Margin="12,124,0,0" Name="label3" VerticalAlignment="Top" Width="84" Foreground="Blue" />
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="115,172,0,0" Name="date_combo" VerticalAlignment="Top" Width="120" />
+        <Label Content="Доступные даты" Height="23" HorizontalAlignment="Left" Margin="12,172,0,0" Name="label4" VerticalAlignment="Top" Width="97" Foreground="Blue" />
+        <ListBox Height="267" HorizontalAlignment="Left" Margin="252,12,0,0" Name="log_list" VerticalAlignment="Top" Width="229" />
+        <Button Content="Сформировать" Height="23" HorizontalAlignment="Left" Margin="127,244,0,0" Name="prv_btrn" VerticalAlignment="Top" Width="86" BorderBrush="Maroon" Click="report_prv" />
+        <Button BorderBrush="Maroon" Content="Очистить" Height="23" HorizontalAlignment="Left" Margin="319,276,0,0" Name="clear_btrn" VerticalAlignment="Top" Width="86" Click="clear_list" />
+        <Button BorderBrush="#FF8D0000" Content="Стоп" Height="23" HorizontalAlignment="Right" Margin="0,276,436,0" Name="stop_btrn" VerticalAlignment="Top" Width="55" Click="stop" />
+        <ProgressBar Height="20" HorizontalAlignment="Left" Margin="12,218,0,0" Name="progress" VerticalAlignment="Top" Width="223" />
+        <Button BorderBrush="Maroon" Content="Отмена" Height="23" HorizontalAlignment="Right" Margin="0,276,302,0" Name="abort_btrn" VerticalAlignment="Top" Width="86" Click="abort" />
+    </Grid>
+</Window>

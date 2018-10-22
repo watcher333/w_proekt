@@ -1,0 +1,633 @@
+<?php
+$link = mysql_connect("localhost", "root", "") or die("no connect");
+mysql_select_db("counter", $link) or die("no vibor");
+$day=date('d');
+$month=date('m');
+$year=date('y');
+$count2=0;
+$date="20".$year."-".$month."-".$day;
+$ip=getenv("REMOTE_ADDR")." ".getenv("HTTP_X_FORWARDED_FOR");
+$query="select * from counter where ip='$ip' && other='openldap'";
+$result=mysql_query($query,$link);
+while ($count=mysql_fetch_row($result))
+  {
+    if($ip==$count[2] && $count[4]=="openldap")
+    {
+    $count1=$count[3]+1;
+    $query="update counter set input='$count1',date='$date' where ip='$ip' && other='openldap'";
+    $result=mysql_query($query,$link);
+    $count2++;
+    }
+
+  }
+
+
+
+if($count2==0)
+{
+ $query="INSERT INTO counter (date,ip,input,other) VALUES ('$date','$ip','1','openldap')";
+ $result = mysql_query($query,$link);
+ mysql_close($link);
+}
+?>
+
+
+<HTML>
+<TITLE> samba+openldap </TITLE>
+<link rel="stylesheet" type="text/css" href="style.css">
+<style type="text/css">
+P {
+ text-align: justify; /* Выравнивание по ширине */
+}
+</style>
+<BODY BGCOLOR="#DDE1C2" TEXT="#002040">
+<h2 align=center>Связка samba+openldap на Centos 5.1 </h2>
+<br>
+
+
+<br>
+<br>
+<p><b>Скачиваем исходники </b></p>
+<table border=1>
+<tr><td><a href=ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/openldap-2.4.8.tgz><FONT SIZE=2 COLOR=green><b>openldap-2.4.8.tgz</front></b></td></tr>
+<tr><td><a href=http://contribs.martymac.com/ldapscripts/ldapscripts-1.4.tgz><FONT SIZE=2 COLOR=green><b>ldapscripts-1.4.tgz</front></b></td></tr>   
+<tr><td><a href=http://www.oracle.com/technology/software/products/berkeley-db/index.html><FONT SIZE=2 COLOR=green><b>db-4.6.21.tar.gz</front></b></td></tr>   
+
+</table>
+<br>
+
+<br><p><b><FONT SIZE=3 COLOR=blue>Устанавливаем openldap </font></b><br>
+<p><font color=red><b>1.1</b></font> Распоковываем наши скаченные файлы:
+<div class="codeheader">/root/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost ~]# tar -zxf openldap-2.4.8.tgz
+[root@localhost ~]# tar -zxf ldapscripts-1.4.tgz
+[root@localhost ~]# tar -zxf db-4.6.21.tar.gz
+<br>
+[root@localhost ~]# ls | grep ldap
+ldapscripts-1.4
+ldapscripts-1.4.tgz
+openldap-2.4.8
+openldap-2.4.8.tgz
+<br>
+[root@localhost ~]# ls | grep db
+db-4.6.21
+db-4.6.21.tar.gz
+</pre></div></p>
+
+
+<p> <font color=red><b>1.1</b></font> Compile Berkeley DB(ставим из исходников 
+в силу того , что пакеты "db4-4.3.29-9.fc6.i386, db4-devel-4.3.29-9.fc6.i386" не подходят для нашего openldap) : вводим по очередности команды
+<br>../dist/configure --prefix=/usr
+<br>make
+<br>make install
+<div class="codeheader">/root/db-4.6.21/build_unix/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost build_unix]# ../dist/configure --prefix=/usr && make && make install
+checking build system type... i686-pc-linux-gnu
+checking host system type... i686-pc-linux-gnu
+checking if building in the top-level or dist directories... no
+checking if --disable-cryptography option specified... no
+checking if --disable-hash option specified... no
+checking if --disable-mutexsupport option specified... no
+checking if --disable-queue option specified... no
+checking if --disable-replication option specified... no
+checking if --disable-statistics option specified... no
+checking if --disable-verify option specified... no
+checking if --enable-compat185 option specified... no
+checking if --enable-cxx option specified... no
+checking if --enable-debug option specified... no
+checking if --enable-debug_rop option specified... no
+checking if --enable-debug_wop option specified... no
+checking if --enable-diagnostic option specified... no
+checking if --enable-dump185 option specified... no
+checking if --enable-java option specified... no
+checking if --enable-mingw option specified... no
+........................................................
+Installing DB utilities: /usr/bin ...
+cp -p .libs/db_archive /usr/bin/db_archive
+cp -p .libs/db_checkpoint /usr/bin/db_checkpoint
+cp -p .libs/db_codegen /usr/bin/db_codegen
+cp -p .libs/db_deadlock /usr/bin/db_deadlock
+cp -p .libs/db_dump /usr/bin/db_dump
+cp -p .libs/db_hotbackup /usr/bin/db_hotbackup
+cp -p .libs/db_load /usr/bin/db_load
+cp -p .libs/db_printlog /usr/bin/db_printlog
+cp -p .libs/db_recover /usr/bin/db_recover
+cp -p .libs/db_stat /usr/bin/db_stat
+cp -p .libs/db_upgrade /usr/bin/db_upgrade
+cp -p .libs/db_verify /usr/bin/db_verify
+Installing documentation: /usr/docs ...
+
+</pre></div></p>
+
+
+<p> <font color=red><b>1.2</b></font> Compile openldap: вводим по очередности команды
+<br>./configure
+<br>make depend
+<br>make
+<br>make install
+<div class="codeheader">/root/openldap-2.4.8/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost openldap-2.4.8]# ./configure && make depend && make && make install
+Configuring OpenLDAP 2.4.8-Release ...
+checking build system type... i686-pc-linux-gnu
+checking host system type... i686-pc-linux-gnu
+checking target system type... i686-pc-linux-gnu
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for gawk... gawk
+checking whether make sets $(MAKE)... yes
+checking configure arguments... done
+checking for cc... cc
+checking for ar... ar
+checking for style of include used by make... GNU
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables...
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether cc accepts -g... yes
+checking for cc option to accept ANSI C... none needed
+checking dependency style of cc... none
+checking for a sed that does not truncate output... /bin/sed
+checking for egrep... grep -E
+checking for ld used by cc... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for /usr/bin/ld option to reload object files... -r
+checking for BSD-compatible nm... /usr/bin/nm -B
+checking whether ln -s works... yes
+checking how to recognise dependent libraries... pass_all
+checking how to run the C preprocessor... cc -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking dlfcn.h usability... yes
+.........................................................................................
+installing slapacl.8 in /usr/local/man/man8
+installing slapadd.8 in /usr/local/man/man8
+installing slapauth.8 in /usr/local/man/man8
+installing slapcat.8 in /usr/local/man/man8
+installing slapd.8 in /usr/local/man/man8
+installing slapdn.8 in /usr/local/man/man8
+installing slapindex.8 in /usr/local/man/man8
+installing slappasswd.8 in /usr/local/man/man8
+installing slaptest.8 in /usr/local/man/man8
+make[3]: Leaving directory `/root/openldap-2.4.8/doc/man/man8'
+
+make[2]: Leaving directory `/root/openldap-2.4.8/doc/man'
+
+make[1]: Leaving directory `/root/openldap-2.4.8/doc'
+
+
+</pre></div></p>
+
+<p><font color=red><b>1.3</b></font> Ставим ldapscripts-1.4:
+<div class="codeheader">/root/ldapscripts-1.4/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost ldapscripts-1.4]# ./install
+Ldapscripts are now installed ! See README for more details...
+[root@localhost ldapscripts-1.4]# ls /etc/ | grep ldapscripts
+ldapscripts
+[root@localhost ldapscripts-1.4]# 
+</pre></div></p>
+
+<p><font color=red><b>1.4</b></font> Ставим пакет nss_ldap
+<div class="codeheader">/root/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost ~]# rpm -ihv nss_ldap-253-5.el5.i386.rpm
+предупреждение: nss_ldap-253-5.el5.i386.rpm: Заголовок V3 DSA signature: NOKEY, key ID e8562897
+Подготовка...     ########################################### [100%]
+   1:nss_ldap               ########################################### [100%]
+ 
+</pre></div></p>
+
+<br><p><b><FONT SIZE=3 COLOR=blue>Настройка openldap </font></b><br>
+<p><font color=red><b>2.1</b></font> 
+Переминовываем фаил DB_CONFIG.example --> DB_CONFIG<br>
+Задавем пароль на вход в ldap(123456)---> slappasswd<br>
+Копируем фаил samba.schema -------------> /usr/local/etc/openldap/schema
+<div class="codeheader">/usr/local/etc/openldap/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost openldap]# mv DB_CONFIG.example DB_CONFIG
+[root@localhost openldap]# slappasswd
+New password:
+Re-enter new password:
+{SSHA}MrZV6JGINeuyFVrqfmwvPHk3waqbs87x
+[root@localhost openldap]# find / -name "samba.schema"
+/usr/share/doc/samba-3.0.25b/LDAP/samba.schema
+[root@localhost openldap]# cp /usr/share/doc/samba-3.0.25b/LDAP/samba.schema schema/
+</pre></div></p>
+
+<p><font color=red><b>2.2</b></font> 
+Правим фаил slapd.conf:
+<div class="codeheader">/usr/local/etc/openldap/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost openldap]# egrep -v '^#|^$' slapd.conf
+include         /usr/local/etc/openldap/schema/core.schema
+include         /usr/local/etc/openldap/schema/cosine.schema
+include         /usr/local/etc/openldap/schema/inetorgperson.schema
+include         /usr/local/etc/openldap/schema/misc.schema
+include         /usr/local/etc/openldap/schema/nis.schema
+include         /usr/local/etc/openldap/schema/openldap.schema
+include         /usr/local/etc/openldap/schema/samba.schema
+<br>
+pidfile         /usr/local/var/run/slapd.pid
+argsfile        /usr/local/var/run/slapd.args
+<br>
+modulepath    /usr/local/libexec/openldap
+moduleload    back_bdb.la
+<br>
+access to attrs=userPassword
+        by self write
+        by anonymous auth
+        by * none
+access to *
+        by self write
+        by anonymous read
+        by * none
+<br>        
+database        bdb
+suffix          "dc=spacedust,dc=ru"
+rootdn          "cn=root,dc=spacedust,dc=ru"
+rootpw          {SSHA}MrZV6JGINeuyFVrqfmwvPHk3waqbs87x
+<br>
+directory       /usr/local/var/openldap-data
+loglevel        256
+index   objectClass     eq
+index   cn              eq
+</pre></div></p>
+
+<p><font color=red><b>2.2</b></font> 
+Создадим фаил 1.ldif нашим корневым обьектом (dn: dc=spacedust,dc=ru)
+и несколькими контейнерами (users,computers,groups)
+<div class="codeheader">/usr/local/etc/openldap/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost openldap]# cat 1.ldif
+dn: dc=spacedust,dc=ru
+objectClass: dcObject
+objectClass: organization
+objectClass: top
+dc: spacedust
+o: spacedust
+<br>
+dn: ou=users,dc=spacedust,dc=ru
+objectClass: top
+objectClass: organizationalUnit
+ou: users
+<br>
+dn: ou=groups,dc=spacedust,dc=ru
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+<br>
+dn: ou=computers,dc=spacedust,dc=ru
+objectClass: top
+objectClass: organizationalUnit
+ou: computers
+
+</pre></div>
+<br>
+Запускаем наш ldap и пробуем добавить
+<div class="codeheader">/usr/local/etc/openldap/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost openldap]# /usr/local/libexec/slapd
+[root@localhost openldap]# ps -A | grep slapd
+12751 ?        00:00:00 slapd
+<br>
+[root@localhost openldap]# ldapadd -x -D "cn=root,dc=spacedust,dc=ru" -w 123456 -f 1.ldif
+adding new entry "dc=spacedust,dc=ru"
+adding new entry "ou=users,dc=spacedust,dc=ru"
+adding new entry "ou=groups,dc=spacedust,dc=ru"
+adding new entry "ou=computers,dc=spacedust,dc=ru"
+</pre></div>
+<br>
+Проверяем
+<div class="codeheader">/usr/local/etc/openldap/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost openldap]#  ldapsearch -LLL -x -b 'dc=spacedust,dc=ru' '*'
+dn: dc=spacedust,dc=ru
+objectClass: dcObject
+objectClass: organization
+objectClass: top
+dc: spacedust
+o: spacedust
+<br>
+dn: ou=users,dc=spacedust,dc=ru
+objectClass: top
+objectClass: organizationalUnit
+ou: users
+<br>
+dn: ou=groups,dc=spacedust,dc=ru
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+<br>
+dn: ou=computers,dc=spacedust,dc=ru
+objectClass: top
+objectClass: organizationalUnit
+ou: computers
+</pre></div></p>
+
+<p><font color=red><b>2.3</b></font> 
+Правим фаил ldap.conf ---> /etc/ldap.conf<br>
+Правим фаил nsswitch.conf ---> /etc/nsswitch.conf<br>
+Правим фаил ldapscripts.conf ---> /etc/ldapscripts/ldapscripts.conf<br>
+Правим фаил ldapadduser ----------> /usr/local/bin/ldapadduser<br>
+<div class="codeheader">/etc/ldap.conf</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost etc]# egrep -v '^#|^$' ldap.conf
+base dc=spacedust,dc=ru
+bind_policy soft
+bind_timelimit 10
+host localhost
+idle_timelimit 3600
+ldap_version 3
+nss_base_group  ou=groups,dc=spacedust,dc=ru?one
+nss_base_passwd ou=users,dc=spacedust,dc=ru?one
+nss_base_passwd ou=computers,dc=spacedust,dc=ru?one
+nss_base_shadow ou=users,dc=spacedust,dc=ru?one
+nss_connect_policy persist
+nss_paged_results yes
+pagesize 1000
+port 389
+scope one
+timelimit 30
+</pre></div>
+<br>
+<div class="codeheader">/etc/nsswitch.conf</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost etc]# egrep -v '^#|^$' nsswitch.conf
+group: files ldap
+hosts: files dns
+networks: files
+passwd: files ldap
+shadow: files ldap
+shells: files
+</pre></div>
+<br>
+<div class="codeheader">/etc/ldapscripts/ldapscripts.conf</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost ldapscripts]# egrep -v '^#|^$' ldapscripts.conf
+SERVER="localhost"
+BINDDN="cn=root,dc=spacedust,dc=ru"
+BINDPWD="123456"
+SUFFIX="dc=spacedust,dc=ru"
+GSUFFIX="ou=groups"
+USUFFIX="ou=users"
+MSUFFIX="ou=computers"
+GIDSTART="10000"
+UIDSTART="10000"
+MIDSTART="20000"
+USHELL="/sbin/nologin"
+UHOMES="/home/%u"
+CREATEHOMES="yes"
+HOMESKEL="/etc/skel"
+LOGFILE="/var/log/ldapscripts.log"
+LDAPSEARCHBIN="/usr/local/bin/ldapsearch"
+LDAPADDBIN="/usr/local/bin/ldapadd"
+LDAPDELETEBIN="/usr/local/bin/ldapdelete"
+LDAPMODIFYBIN="/usr/local/bin/ldapmodify"
+LDAPMODRDNBIN="/usr/local/bin/ldapmodrdn"
+LDAPPASSWDBIN="/usr/local/bin/ldappasswd"
+GETENTPWCMD="getent passwd"
+GETENTGRCMD="getent group"
+</pre></div><br>
+Закоментим две строчки в скрипте ldapadduser(касающие генерации пароля)
+<div class="codeheader">/usr/local/bin/ldapadd</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+# Add the user's password
+#_changepassword "$_PASSWORD" "uid=$_USER,$USUFFIX,$SUFFIX"
+#[ $? -eq 0 ] && echo_log "Successfully set password for user $1"
+</pre></div></p>
+
+
+<p><font color=red><b>2.4</b></font> 
+Добавляем группы admins,user,computers в ldap
+<div class="codeheader">/usr/local/etc/openldap/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost ldapscripts]# ldapaddgroup admins
+Successfully added group admins to LDAP
+<br>
+[root@localhost ldapscripts]# ldapaddgroup user
+Successfully added group user to LDAP
+<br>
+[root@localhost ldapscripts]# ldapaddgroup computers
+Successfully added group computers to LDAP
+</pre></div><br>
+Добавляем юзеров в группы: admin -> admins ; test -> user
+<div class="codeheader">/usr/local/etc/openldap/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost ldapscripts]# ldapadduser admin admins
+Successfully added user admin to LDAP
+Successfully created home directory for user admin
+<br>
+[root@localhost ldapscripts]# ldapadduser test user
+Successfully added user test to LDAP
+Successfully created home directory for user test
+<br>
+[root@localhost ldapscripts]# ls -l /home/
+drwx------ 2 admin admins 4096 Апр  2 00:28 admin
+drwx------ 2 test  user   4096 Апр  2 00:28 test
+<br>
+[root@localhost samba]# id admin
+uid=10001(admin) gid=10001(admins) группы=10001(admins)
+[root@localhost samba]# id test
+uid=10002(test) gid=10004(user) группы=10004(user)
+</pre></div></p>
+
+<br><p><b><FONT SIZE=3 COLOR=blue>Настройка samba </font></b><br>
+<p><font color=red><b>3.1</b></font> 
+Правим smb.conf
+<div class="codeheader">/etc/samba</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[global]
+   workgroup = tester
+   netbios name = spider
+   server string = PDC-Server
+   security = user
+   hosts allow = 192.168.50.0/24, 192.168.1.0/24, 192.168.10.0/24, 127.0.0.1
+   load printers = no
+   log file = /var/log/samba/log.%m
+   max log size = 500
+   encrypt passwords = yes
+   admin users = admin
+   passdb backend = ldapsam:ldap://localhost/
+   ldap suffix = dc=spacedust,dc=ru
+   ldap user suffix = ou=users
+   ldap group suffix = ou=groups
+   ldap machine suffix = ou=computers
+   ldap admin dn = "cn=root,dc=spacedust,dc=ru"
+   ldap delete dn = yes
+   ldap ssl = off
+   socket options = IPTOS_LOWDELAY TCP_NODELAY SO_SNDBUF=4096 SO_RCVBUF=4096
+   local master = yes
+   os level = 64
+   domain master = yes
+   preferred master = yes
+   domain logons = yes
+   logon path = \\%L\Profiles\%U\%m\
+   logon home = \\%L\Profiles\%U\%m\
+<br>
+    wins support = yes
+    dns proxy = no
+    display charset = koi8-r
+    unix charset = koi8-r
+    dos charset = cp866
+    time server = yes
+    add machine script = /usr/local/bin/ldapaddmachine '%u' computers
+    add user script = /usr/local/bin/ldapadduser '%u' users
+    add group script = /usr/local/bin/ldapaddgroup '%g'
+    add user to group script = /usr/local/bin/ldapaddusertogroup '%u' '%g'
+    delete user script = /usr/local/bin/ldapdeleteuser '%u'
+    delete group script = /usr/local/bin/ldapdeletegroup '%g'
+    delete user from group script = /usr/local/bin/ldapdeleteuserfromgroup '%u' '%g'
+    set primary group script = /usr/local/bin/ldapsetprimarygroup '%u' '%g'
+    rename user script = /usr/local/bin/ldaprenameuser '%uold' '%unew'
+    <br>
+[homes]
+   comment = Home Directories
+   browseable = no
+   writable = yes
+   <br>
+ [netlogon]
+   comment = Network Logon Service
+   path = /samba/netlogon/
+   guest ok = yes
+   writable = no
+   share modes = no
+   browseable = no
+</pre></div></p>
+
+<p><font color=red><b>3.2</b></font> 
+Передадим samba пароль от ldap <br>
+Добавим в samba пользователей admin и test<br>
+<div class="codeheader">/etc/samba/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost samba]# smbpasswd -w 123456
+Setting stored password for "cn=root,dc=spacedust,dc=ru" in secrets.tdb
+[root@localhost samba]# smbpasswd -a admin
+New SMB password:
+Retype new SMB password:
+Added user admin.
+[root@localhost samba]# smbpasswd -a test
+New SMB password:
+Retype new SMB password:
+Added user test.
+[root@localhost samba]# smbpasswd -e admin
+Enabled user admin.
+[root@localhost samba]# smbpasswd -e test
+Enabled user test.
+</pre></div>
+<br>Проверим
+<div class="codeheader">/etc/samba/</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost samba]# ldapsearch -LLL -x -b 'dc=spacedust,dc=ru' 'uid=test'
+dn: uid=test,ou=users,dc=spacedust,dc=ru
+objectClass: account
+objectClass: posixAccount
+objectClass: sambaSamAccount
+cn: test
+uid: test
+uidNumber: 10002
+gidNumber: 10004
+homeDirectory: /home/test
+loginShell: /sbin/nologin
+gecos: test
+description: test
+sambaSID: S-1-5-21-3439933763-4178935134-2055478027-21004
+displayName: test
+sambaLMPassword: CCF9155E3E7DB453AAD3B435B51404EE
+sambaNTPassword: 3DBDE697D71690A769204BEB12283678
+sambaPasswordHistory: 00000000000000000000000000000000000000000000000000000000
+ 00000000
+sambaPwdLastSet: 1207085649
+sambaAcctFlags: [U          ]
+</pre></div></p>
+
+<p><font color=red><b>3.3</b></font> Добавим доменные группы
+<div class="codeheader">/etc/samba</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost samba]# net groupmap add unixgroup=admins rid=512 type=domain
+Successfully added group admins to the mapping db as a domain group
+<br>
+[root@localhost samba]# net groupmap add unixgroup=user rid=513 type=domain
+Successfully added group user to the mapping db as a domain group
+<br>
+[root@localhost samba]# net groupmap add unixgroup=computers rid=515 type=domain
+Successfully added group computers to the mapping db as a domain group
+<br>
+[root@localhost samba]# net groupmap list
+admins (S-1-5-21-3439933763-4178935134-2055478027-512) -> admins
+computers (S-1-5-21-3439933763-4178935134-2055478027-515) -> computers
+user (S-1-5-21-3439933763-4178935134-2055478027-513) -> user
+
+</pre></div></p>
+
+<p><font color=red><b>3.4</b></font> Запускаем самбу и пробуем добавить тачку в домен
+<div class="codeheader">/etc/samba</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost samba]# service smb start
+Запускаются службы SMB:                                    [  OK  ]
+Запускаются службы NMB:                                    [  OK  ]
+</pre></div></p>
+Добавляем под пользователем admin (пароль какой вводили в samba при добавлении)
+<p align=left><img src=1.gif >
+<br>
+<br>
+Тачка computing успешно добавилась в ldap
+<div class="codeheader">/etc/samba</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost samba]# ldapsearch -LLL -x -b 'dc=spacedust,dc=ru' 'uid=computing$'
+dn: uid=computing$,ou=computers,dc=spacedust,dc=ru
+objectClass: account
+objectClass: posixAccount
+objectClass: sambaSamAccount
+cn: computing$
+uid: computing$
+uidNumber: 20001
+gidNumber: 10003
+homeDirectory: /dev/null
+loginShell: /bin/false
+gecos: computing$
+description: computing$
+sambaSID: S-1-5-21-3439933763-4178935134-2055478027-1001
+displayName: computing$
+sambaAcctFlags: [W          ]
+sambaNTPassword: DE4568A0069360FC9175A869914C8676
+sambaPwdLastSet: 1207087305
+</pre></div>
+<br>
+Информация о домене
+<div class="codeheader">/etc/samba</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@localhost samba]# net rpc info -U admin
+Password:
+Domain Name: TESTER
+Domain SID: S-1-5-21-3439933763-4178935134-2055478027
+Sequence number: 1207087635
+Num users: 2
+Num domain groups: 3
+Num local groups: 0</pre></div></p>
+
+
+
+<h4 align=right><a href=http://www.lissyara.su/?id=1329><font color=blue>оригинальная статья под FREEBSD </font></a></h3>
+<br>
+
+
+
+
+
+</BODY>
+
+</HTML>
+

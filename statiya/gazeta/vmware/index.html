@@ -1,0 +1,451 @@
+<?php
+$link = mysql_connect("localhost", "root", "") or die("no connect");
+mysql_select_db("counter", $link) or die("no vibor");
+$day=date('d');
+$month=date('m');
+$year=date('y');
+$count2=0;
+$date="20".$year."-".$month."-".$day;
+$ip=getenv("REMOTE_ADDR")." ".getenv("HTTP_X_FORWARDED_FOR");
+$query="select * from counter where ip='$ip' && other='vmware'";
+$result=mysql_query($query,$link);
+while ($count=mysql_fetch_row($result))
+  {
+    if($ip==$count[2] && $count[4]=="vmware")
+    {
+    $count1=$count[3]+1;
+    $query="update counter set input='$count1',date='$date' where ip='$ip' && other='vmware'";
+    $result=mysql_query($query,$link);
+    $count2++;
+    }
+
+  }
+
+
+
+if($count2==0)
+{
+ $query="INSERT INTO counter (date,ip,input,other) VALUES ('$date','$ip','1','vmware')";
+ $result = mysql_query($query,$link);
+ mysql_close($link);
+}
+?>
+
+
+<HTML>
+<TITLE> vmware_server </TITLE>
+<link rel="stylesheet" type="text/css" href="style.css">
+<style type="text/css">
+P {
+ text-align: justify; /* Выравнивание по ширине */
+}
+</style>
+<BODY BGCOLOR="#DDE1C2" TEXT="#002040">
+<h2 align=center>Установка vmware-server на Fedora 6 </h2>
+<br>
+
+<br>
+<br>
+<br>
+
+<p><b>Скачиваем пакеты : </b></p>
+<table border=1>
+<tr><td><a href=http://download3.vmware.com/software/vmserver/VMware-mui-1.0.5-80187.tar.gz><FONT SIZE=2 COLOR=green><b>VMware-mui-1.0.5-80187.tar.gz</font></b></td></tr>
+<tr><td><a href=http://download3.vmware.com/software/vmserver/VMware-server-1.0.5-80187.i386.rpm><FONT SIZE=2 COLOR=green><b>VMware-server-1.0.5-80187.i386.rpm</font></b></td></tr>   
+</table>
+<br>
+<p><b>Должен быть установлен пакет : </b> <FONT SIZE=2 COLOR=green><b>kernel-headers</font></b></p>
+<br>
+<p><b>Нынешнее ядро </b></p>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@lora init.d]# uname -r
+2.6.22.14-72.fc6
+</pre></div></p>
+
+
+<br>
+<p> <b>Установка и настройка vmware-server  </b></p>
+<p><font color=red>1.1</font> Установка
+<div class="codeheader">/root</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@lora vmware]# rpm -ihv VMware-server-1.0.5-80187.i386.rpm
+Preparing...                ########################################### [100%]
+   1:VMware-server          ########################################### [100%]
+[root@lora vmware]#
+</pre></div>
+<br>
+
+<font color=red>1.2</font> Настройка
+<br> Запускаем фаил vmware-config.pl ---> /usr/bin
+<div class="codeheader">/root</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@lora bin]# ./vmware-config.pl
+Making sure services for VMware Server are stopped.
+
+Stopping VMware services:
+   Virtual machine monitor                                 [  OK  ]
+
+You must read and accept the End User License Agreement to continue.
+Press enter to display it.
+
+VMWARE MASTER END USER LICENSE AGREEMENT
+
+NOTICE:  BY DOWNLOADING AND INSTALLING,
+COPYING OR OTHERWISE USING THE SOFTWARE, YOU
+AGREE TO BE BOUND BY THE TERMS OF THIS EULA.
+...........................................................................
+
+Do you accept? (yes/no) yes
+
+Thank you.
+
+Configuring fallback GTK+ 2.4 libraries.
+
+In which directory do you want to install the mime type icons?
+[/usr/share/icons]
+
+What directory contains your desktop menu entry files? These files have a
+.desktop file extension. [/usr/share/applications]
+
+In which directory do you want to install the application's icon?
+[/usr/share/pixmaps]
+
+Trying to find a suitable vmmon module for your running kernel.
+
+None of the pre-built vmmon modules for VMware Server is suitable for your
+running kernel.  Do you want this program to try to build the vmmon module for
+your system (you need to have a C compiler installed on your system)? [yes]
+
+Using compiler "/usr/bin/gcc". Use environment variable CC to override.
+
+What is the location of the directory of C header files that match your running
+kernel? [/lib/modules/2.6.22.14-72.fc6/build/include]
+
+Extracting the sources of the vmmon module.
+
+Building the vmmon module.
+
+Using 2.6.x kernel build system.
+make: Entering directory `/tmp/vmware-config0/vmmon-only'
+make -C /lib/modules/2.6.22.14-72.fc6/build/include/.. SUBDIRS=$PWD SRCROOT=$PWD/. modules
+make[1]: Entering directory `/usr/src/kernels/2.6.22.14-72.fc6-x86_64'
+  CC [M]  /tmp/vmware-config0/vmmon-only/linux/driver.o
+  CC [M]  /tmp/vmware-config0/vmmon-only/linux/hostif.o
+  CC [M]  /tmp/vmware-config0/vmmon-only/common/cpuid.o
+  CC [M]  /tmp/vmware-config0/vmmon-only/common/hash.o
+  CC [M]  /tmp/vmware-config0/vmmon-only/common/memtrack.o
+  CC [M]  /tmp/vmware-config0/vmmon-only/common/phystrack.o
+  CC [M]  /tmp/vmware-config0/vmmon-only/common/task.o
+  CC [M]  /tmp/vmware-config0/vmmon-only/common/vmx86.o
+  CC [M]  /tmp/vmware-config0/vmmon-only/vmcore/moduleloop.o
+  LD [M]  /tmp/vmware-config0/vmmon-only/vmmon.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /tmp/vmware-config0/vmmon-only/vmmon.mod.o
+  LD [M]  /tmp/vmware-config0/vmmon-only/vmmon.ko
+make[1]: Leaving directory `/usr/src/kernels/2.6.22.14-72.fc6-x86_64'
+cp -f vmmon.ko ./../vmmon.o
+make: Leaving directory `/tmp/vmware-config0/vmmon-only'
+The module loads perfectly in the running kernel.
+
+Do you want networking for your virtual machines? (yes/no/help) [yes]
+
+Configuring a bridged network for vmnet0.
+
+The following bridged networks have been defined:
+
+. vmnet0 is bridged to eth0
+
+All your ethernet interfaces are already bridged.
+
+Do you want to be able to use NAT networking in your virtual machines? (yes/no)
+[yes]
+
+Configuring a NAT network for vmnet8.
+
+Do you want this program to probe for an unused private subnet? (yes/no/help)
+[yes]
+
+Probing for an unused private subnet (this can take some time)...
+
+The subnet 172.16.30.0/255.255.255.0 appears to be unused.
+
+This system appears to have a DHCP server configured for normal use.  Beware
+that you should teach it how not to interfere with VMware Server's DHCP server.
+There are two ways to do this:
+
+1) Modify the file /etc/dhcpd.conf to add something like:
+
+subnet 172.16.30.0 netmask 255.255.255.0 {
+# Note: No range is given, vmnet-dhcpd will deal with this subnet.
+}
+
+2) Start your DHCP server with an explicit list of network interfaces to deal
+with (leaving out vmnet8). e.g.:
+
+dhcpd eth0
+
+Consult the dhcpd(8) and dhcpd.conf(5) manual pages for details.
+
+Hit enter to continue.
+
+The following NAT networks have been defined:
+
+. vmnet8 is a NAT network on private subnet 172.16.30.0.
+
+Do you wish to configure another NAT network? (yes/no) [no]
+
+Do you want to be able to use host-only networking in your virtual machines?
+[yes]
+
+Configuring a host-only network for vmnet1.
+
+Do you want this program to probe for an unused private subnet? (yes/no/help)
+[yes]
+
+Probing for an unused private subnet (this can take some time)...
+
+The subnet 192.168.111.0/255.255.255.0 appears to be unused.
+
+This system appears to have a DHCP server configured for normal use.  Beware
+that you should teach it how not to interfere with VMware Server's DHCP server.
+There are two ways to do this:
+
+1) Modify the file /etc/dhcpd.conf to add something like:
+
+subnet 192.168.111.0 netmask 255.255.255.0 {
+# Note: No range is given, vmnet-dhcpd will deal with this subnet.
+}
+
+2) Start your DHCP server with an explicit list of network interfaces to deal
+with (leaving out vmnet1). e.g.:
+
+dhcpd eth0
+
+Consult the dhcpd(8) and dhcpd.conf(5) manual pages for details.
+
+Hit enter to continue.
+
+The following host-only networks have been defined:
+
+. vmnet1 is a host-only network on private subnet 192.168.111.0.
+
+Do you wish to configure another host-only network? (yes/no) [no]
+
+Extracting the sources of the vmnet module.
+
+Building the vmnet module.
+
+Using 2.6.x kernel build system.
+make: Entering directory `/tmp/vmware-config0/vmnet-only'
+make -C /lib/modules/2.6.22.14-72.fc6/build/include/.. SUBDIRS=$PWD SRCROOT=$PWD/. modules
+make[1]: Entering directory `/usr/src/kernels/2.6.22.14-72.fc6-x86_64'
+  CC [M]  /tmp/vmware-config0/vmnet-only/driver.o
+  CC [M]  /tmp/vmware-config0/vmnet-only/hub.o
+  CC [M]  /tmp/vmware-config0/vmnet-only/userif.o
+  CC [M]  /tmp/vmware-config0/vmnet-only/netif.o
+  CC [M]  /tmp/vmware-config0/vmnet-only/bridge.o
+  CC [M]  /tmp/vmware-config0/vmnet-only/procfs.o
+  CC [M]  /tmp/vmware-config0/vmnet-only/smac_compat.o
+  SHIPPED /tmp/vmware-config0/vmnet-only/smac_linux.x86_64.o
+  LD [M]  /tmp/vmware-config0/vmnet-only/vmnet.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+WARNING: could not find /tmp/vmware-config0/vmnet-only/.smac_linux.x86_64.o.cmd for /tmp/vmware-config0/vmnet-only/smac_linux.x86_64.o
+  CC      /tmp/vmware-config0/vmnet-only/vmnet.mod.o
+  LD [M]  /tmp/vmware-config0/vmnet-only/vmnet.ko
+make[1]: Leaving directory `/usr/src/kernels/2.6.22.14-72.fc6-x86_64'
+cp -f vmnet.ko ./../vmnet.o
+make: Leaving directory `/tmp/vmware-config0/vmnet-only'
+The module loads perfectly in the running kernel.
+
+The default port : 902 is not free. We have selected a suitable alternative
+port for VMware Server use. You may override this value now.
+Remember to use this port when connecting to this server.
+Please specify a port for remote console connections to use [904] 9991
+
+WARNING: VMware Server has been configured to run on a port different from the
+default port. Remember to use this port when connecting to this server.
+Stopping xinetd:                                           [  OK  ]
+Starting xinetd:                                           [  OK  ]
+Configuring the VMware VmPerl Scripting API.
+
+Building the VMware VmPerl Scripting API.
+
+Using compiler "/usr/bin/gcc". Use environment variable CC to override.
+
+Installing the VMware VmPerl Scripting API.
+
+The installation of the VMware VmPerl Scripting API succeeded.
+
+Do you want this program to set up permissions for your registered virtual
+machines?  This will be done by setting new permissions on all files found in
+the "/etc/vmware/vm-list" file. [no]
+
+Generating SSL Server Certificate
+
+In which directory do you want to keep your virtual machine files?
+[/var/lib/vmware/Virtual Machines] /samba/distribs/virtmachines
+
+Do you want to enter a serial number now? (yes/no/help) [no] yes
+
+Please enter your 20-character serial number.
+
+Type XXXXX-XXXXX-XXXXX-XXXXX or 'Enter' to cancel:  98D61-YPU2T-23650-486AR
+
+Starting VMware services:
+   Virtual machine monitor                                 [  OK  ]
+   Virtual ethernet                                        [  OK  ]
+   Bridged networking on /dev/vmnet0                       [  OK  ]
+   Host-only networking on /dev/vmnet1 (background)        [  OK  ]
+   Host-only networking on /dev/vmnet8 (background)        [  OK  ]
+   NAT service on /dev/vmnet8                              [  OK  ]
+   Starting VMware virtual machines...                     [  OK  ]
+
+The configuration of VMware Server 1.0.5 build-80187 for Linux for this running
+kernel completed successfully.
+
+
+
+</pre></div>
+
+<p>Я отвечал все поумолчанию (разработчик плохого не посоветует :) ), из менил несколько вещей:</p>
+<lu>
+<li>remote console connections -------------------------------------> 9991 (порт для удаленного подключение с консоли )</li>
+<li>directory do you want to keep your virtual machine files ------->/samba/distribs/virtmachines(где будем хранить файлы virtual machine ) </li>
+<li>Please enter your 20-character serial number ------------------->98D61-YPU2T-23650-486AR(можно взять на сайте разработчика)</li>
+</lu>
+
+</p>
+
+<br>
+
+<p> <b>Установка и настройка VMware Management Interface</b></p>
+<p><font color=red>2.1</font> Распоковываем
+<div class="codeheader">/root</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@lora vmware]# tar -zxf VMware-mui-1.0.5-80187.tar.gz
+[root@lora vmware]# ls | grep vmware-mui
+vmware-mui-distrib
+</pre></div>
+<br>
+<font color=red>2.2</font> Настройка
+<br> Запускаем фаил vmware-install.pl
+<div class="codeheader">/root/vmware-mui-distrib</div>
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+[root@lora vmware-mui-distrib]# ./vmware-install.pl
+Creating a new installer database using the tar3 format.
+
+You must read and accept the End User License Agreement to continue.
+Press enter to display it.
+
+VMWARE MASTER END USER LICENSE AGREEMENT
+
+NOTICE:  BY DOWNLOADING AND INSTALLING,
+COPYING OR OTHERWISE USING THE SOFTWARE, YOU
+AGREE TO BE BOUND BY THE TERMS OF THIS EULA.
+IF YOU DO NOT AGREE TO THE TERMS OF THIS EULA,
+YOU MAY NOT DOWNLOAD, INSTALL, COPY OR USE THE
+SOFTWARE, AND YOU MAY RETURN THE UNUSED
+SOFTWARE TO THE VENDOR FROM WHICH YOU ACQUIRED
+IT WITHIN THIRTY (30) DAYS AND REQUEST A
+REFUND OF THE LICENSE FEE, IF ANY, ALREADY
+PAID UPON SHOWING PROOF OF PAYMENT.
+.....................................................
+Do you accept? (yes/no) yes
+
+Thank you.
+
+Installing the content of the package.
+
+In which directory do you want to install the binary files?
+[/usr/bin]
+
+What is the directory that contains the init directories (rc0.d/ to rc6.d/)?
+[/etc/rc.d]
+
+What is the directory that contains the init scripts?
+[/etc/rc.d/init.d]
+
+In which directory do you want to install the VMware Management Interface
+files? [/usr/lib/vmware-mui]
+
+The path "/usr/lib/vmware-mui" does not exist currently. This program is going
+to create it, including needed parent directories. Is this what you want?
+[yes]
+
+In which directory would you like to install the documentation files?
+[/usr/lib/vmware-mui/doc]
+
+The path "/usr/lib/vmware-mui/doc" does not exist currently. This program is
+going to create it, including needed parent directories. Is this what you want?
+[yes]
+
+The installation of VMware Management Interface 1.0.5 build-80187 for Linux
+completed successfully. You can decide to remove this software from your system
+at any time by invoking the following command:
+"/usr/bin/vmware-uninstall-mui.pl".
+
+Before running VMware Management Interface for the first time, you need to
+configure it by invoking the following command:
+"/usr/bin/vmware-config-mui.pl". Do you want this program to invoke the command
+for you now? [yes]
+
+Configuring httpd.conf to run Apache as:
+User: www and Group: nobody
+
+Set the number of minutes before a http session times out. (This is the length
+of time before someone connecting to VMware Management Interface will be logged
+out) [60]
+
+Generating SSL Server Certificate
+
+   Starting httpd.vmware:                                  [  OK  ]
+The configuration of VMware Management Interface completed successfully.
+
+</pre></div>
+</p>
+
+
+<br>
+<p> <b>Проверим </b></p>
+<p><font color=red>3.1</font> Было создано два интерфейса:
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+vmnet1    Link encap:Ethernet  HWaddr 00:50:56:C0:00:01
+          inet addr:192.168.111.1  Bcast:192.168.111.255  Mask:255.255.255.0
+          inet6 addr: fe80::250:56ff:fec0:1/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:6 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+
+vmnet8    Link encap:Ethernet  HWaddr 00:50:56:C0:00:08
+          inet addr:172.16.30.1  Bcast:172.16.30.255  Mask:255.255.255.0
+          inet6 addr: fe80::250:56ff:fec0:8/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:6 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+
+</pre></div>
+<br>
+<font color=red>3.2</font> Три наших порта в состоянии -> Listen
+<div class="code"><pre style="margin-top: 0pt; display: inline;">
+tcp        0      0 0.0.0.0:8333                0.0.0.0:*                   LISTEN      9532/httpd.vmware
+tcp        0      0 0.0.0.0:8222                0.0.0.0:*                   LISTEN      9532/httpd.vmware
+tcp        0      0 0.0.0.0:9991                0.0.0.0:*                   LISTEN      9018/xinetd
+</pre></div></p>
+<br>можете создавать вируальные сервера сколько нужно(это уже зависит от мощности вашего сервака)
+
+<br>
+<br>
+
+
+
+
+</BODY>
+
+</HTML>
+

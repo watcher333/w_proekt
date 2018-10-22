@@ -1,0 +1,37 @@
+ CREATE TABLE bart (
+    ID INTEGER NOT NULL,
+    DATE1  DATE NOT NULL,
+    KV VARCHAR(90) NOT NULL,
+    ADRESS VARCHAR(90) NOT NULL,
+    PLOSHAD VARCHAR(90) NOT NULL,
+    ETASH VARCHAR(90),
+    CENA VARCHAR(90) NOT NULL,
+    HOZYAEV VARCHAR(90),
+    MAT_DOM VARCHAR(90),
+    NAL_BALKON VARCHAR(90),
+    NAL_TEL VARCHAR(90),
+    SOBSTVENNOST VARCHAR(90),
+    SMESH_IZOL VARCHAR(90),
+    SAN_UZEL VARCHAR(90),
+    KON_TEL VARCHAR(90));
+
+
+CREATE TABLE bart (
+    ID INTEGER NOT NULL,
+    DATE1  DATE NOT NULL,
+    KV INTEGER NOT NULL,
+    ADRESS VARCHAR(90) NOT NULL,
+    PLOSHAD VARCHAR(30) NOT NULL,
+    ETASH INTEGER,
+    CENA INTEGER NOT NULL,
+    HOZYAEV INTEGER,
+    MAT_DOM VARCHAR(30),
+    NAL_BALKON VARCHAR(10),
+    NAL_TEL VARCHAR(10),
+    SOBSTVENNOST VARCHAR(50),
+    SMESH_IZOL VARCHAR(20),
+    SAN_UZEL VARCHAR(20),
+    KON_TEL VARCHAR(30));
+
+ INSERT INTO bart(date1, kv, adress, ploshad, etash, cena, hozyaev, mat_dom, nal_balkon, nal_tel, sobstvennost, smesh_izol, san_uzel, kon_tel)
+    Values('01.01.2009', '5', 'aaaa', 'aaaa', '5', '45455', '4', 'aaaa', 'aaaa', 'aaaa', 'aaaa', 'aaaa''aaaa', 'aaaa', 'aaaa')

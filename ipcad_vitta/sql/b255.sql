@@ -1,0 +1,1 @@
+create table b255( id int(11) NOT NULL AUTO_increment,date DATE,ip VARCHAR(90) not null,input int(90) not null, primary key(id));
